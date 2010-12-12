@@ -1,0 +1,9 @@
+= Feature branch enabled environment (FBEE)
+
+This is a feature branch enabled environment (FBEE) plugin for redmine.
+It allows:
+- creating issue releated feature branches from the redmine
+- tracking created branches
+- squashing all commits on the feature branch to the one commit and
+  - move the commit as a change to the gerrit or
+  - merge the commit on the master or other release branch 
