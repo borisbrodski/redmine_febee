@@ -1,0 +1,3 @@
+<% if User.current.allowed_to? :view_fbee, @project %>
+<h1>Test (<%= Setting.plugin_redmine_fbee['tab_name'] %>)</h1>
+<% end %>

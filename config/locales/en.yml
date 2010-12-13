@@ -1,2 +1,5 @@
 # English strings go here for Rails i18n
 en:
+  field_git_url: "Git url"
+  field_workspace: "Workspace path"
+  fbee_project_configuration: "FBEE"

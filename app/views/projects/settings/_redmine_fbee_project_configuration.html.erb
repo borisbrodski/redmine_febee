@@ -1,0 +1,23 @@
+<% remote_form_for :fbee_project_configuration,
+                   @fbee_project_configuration,
+                   :url => { :controller => 'fbee_project_configurations', :action => 'update', :id => @project },
+                   :builder => TabularFormBuilder,
+                   :lang => current_language do |f| %>
+
+<%= error_messages_for 'fbee_project_configuration' %>
+
+<div class="box tabular">
+<p><%= f.text_field :git_url, :size => 50, :required => true %><br />
+<p><%= f.text_field :workspace, :size => 50, :required => true %>
+  <% if @initialized %>
+    <%= submit_tag("Re-Initialize") %>
+  <% else %>
+    <%= submit_tag("Initialize") %>  (<b>not initialized</b>)
+  <% end %>
+  <br />
+  <em><b>WARNING:</b> all content of the directory will be removed!</em>
+</div>
+
+
+<%= submit_tag(l(:button_save)) %>
+<% end %>
