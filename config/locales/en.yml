@@ -1,5 +1,14 @@
 # English strings go here for Rails i18n
 en:
-  field_git_url: "Git url"
-  field_workspace: "Workspace path"
-  fbee_project_configuration: "FBEE"
+  fbee_field_git_url: Git url
+  fbee_field_workspace: Workspace path
+  fbee_project_configuration: FBEE
+  fbee_not_initialized: not initialized
+  fbee_warning_all_directory_content_will_be_removed: <b>WARNING:</b> all content of the directory will be removed!
+  
+  fbee_full_path_to_hash: Full path to bash
+  fbee_full_path_to_hash_hint: Full path to the bash-shell executable.
+  fbee_full_path_to_git: Full path to git
+  fbee_full_path_to_git_hint: Full path to the git executable.
+  fbee_full_path_to_ssh: Full path to ssh
+  fbee_full_path_to_ssh_hint: Full path to the ssh/plink executable.
