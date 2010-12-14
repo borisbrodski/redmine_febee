@@ -1,14 +1,30 @@
 # English strings go here for Rails i18n
 en:
-  fbee_field_git_url: Git url
-  fbee_field_workspace: Workspace path
+# Project configuration
   fbee_project_configuration: FBEE
+  field_git_url: Git url
+  hint_git_url: Url to git or gerrit server
+  field_workspace: Workspace path
+  hint_workspace: <b>WARNING:</b> all content of the directory will be removed!
   fbee_not_initialized: not initialized
-  fbee_warning_all_directory_content_will_be_removed: <b>WARNING:</b> all content of the directory will be removed!
+  field_private_key: Private key
+  hint_private_key: Decrypted private key to access git repository from redmine
+  field_public_key: Public key
+  hint_public_key: Corresponding public key to access git repository from redmine
+  field_git_user_name: Git user name
+  hint_git_user_name: User name to use for git user.name config variable
+  field_git_email_name: Git e-mail address
+  hint_git_email_name: E-mail address to use for git user.email config variable
+  button_initialize: Initialize
+  button_reinitialize: Re-initialize
   
-  fbee_full_path_to_hash: Full path to bash
-  fbee_full_path_to_hash_hint: Full path to the bash-shell executable.
+  fbee_full_path_to_bash: Full path to bash
+  fbee_full_path_to_bash_hint: Full path to the bash-shell executable.
   fbee_full_path_to_git: Full path to git
   fbee_full_path_to_git_hint: Full path to the git executable.
   fbee_full_path_to_ssh: Full path to ssh
   fbee_full_path_to_ssh_hint: Full path to the ssh/plink executable.
+
+# ExecHelper
+  exec_error_cant_start_program: "ERROR: can't execute program."
+  

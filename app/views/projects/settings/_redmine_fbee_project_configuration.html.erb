@@ -1,21 +1,41 @@
+<% size = 50 %>
+<% area_cols = 58 %>
+<% area_rows = 6 %>
 <% remote_form_for :fbee_project_configuration,
                    @fbee_project_configuration,
                    :url => { :controller => 'fbee_project_configurations', :action => 'update', :id => @project },
                    :builder => TabularFormBuilder,
                    :lang => current_language do |f| %>
 
+<%= render_flash_messages %>
 <%= error_messages_for 'fbee_project_configuration' %>
 
 <div class="box tabular">
-<p><%= f.text_field :git_url, :label => l(:fbee_field_git_url), :size => 50, :required => true %><br />
-<p><%= f.text_field :workspace, :label => l(:fbee_field_workspace), :size => 50, :required => true %>
+<p><%= f.text_field :git_url, :size => size, :required => true %><br />
+  <em><%=l :hint_git_url %></em></p>
+</p>
+<p><%= f.text_field :workspace, :size => size, :required => true %>
   <% if @initialized %>
-    <%= submit_tag("Re-Initialize") %>
+    <%= submit_to_remote :reinitialize, l(:button_reinitialize),
+      :url => { :controller => 'fbee_project_configurations', :action => 'reinitialize_git_repository', :id => @project} %>
   <% else %>
-    <%= submit_tag("Initialize") %>  (<b><%= l :fbee_not_initialized %></b>)
+    <%= submit_to_remote :initialize, l(:button_initialize),
+      :url => { :controller => 'fbee_project_configurations', :action => 'initialize_git_repository', :id => @project} %>
+    (<b><%= l :fbee_not_initialized %></b>)
   <% end %>
   <br />
-  <em><%=l :fbee_warning_all_directory_content_will_be_removed %></em>
+  <em><%=l :hint_workspace %></em></p>
+<p><%= f.text_field :git_user_name, :size => size, :required => true %><br />
+  <em><%=l :hint_git_user_name %></em></p>
+</p>
+<p><%= f.text_field :git_email_name, :size => size, :required => true %><br />
+  <em><%=l :hint_git_email %></em></p>
+</p>
+<p><%= f.text_area :private_key, :cols => area_cols, :rows => area_rows %><br />
+  <em><%=l :hint_private_key %></em></p>
+<p><%= f.text_area :public_key, :cols => area_cols, :rows => area_rows %><br />
+  <em><%=l :hint_public_key %></em></p>
+</p>
 </div>
 
 
