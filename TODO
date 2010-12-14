@@ -1,1 +1,2 @@
 - Get ride of the 'PGconn.quote_ident' in the init.rb
+- Check, if public key should be stored in project configuration 
