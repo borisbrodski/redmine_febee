@@ -1,2 +1,4 @@
 - Get ride of the 'PGconn.quote_ident' in the init.rb
 - Check, if public key should be stored in project configuration 
+- Lock workspace through database lock
+- Catch ExecError in all controller actions using GitRepository 

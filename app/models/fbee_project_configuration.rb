@@ -17,8 +17,24 @@ class FbeeProjectConfiguration < ActiveRecord::Base
     end
   end
 
+  def git_repository
+    @git_repository ||= GitRepository.new(workspace)
+  end
+
+  def initialize_repository
+    git_repository.initialize_repository private_key
+  end
+
+  def reinitialize_repository
+    git_repository.reinitialize_repository private_key
+  end
+
+  def do_with_private_key 
+    git_repository.do_with_private_key(private_key) {yield}
+  end
+
   def workspace_initialized?
-    GitRepository.new(workspace).repository_initialized? if valid?
+    git_repository.repository_initialized? if valid?
   end
 
 end

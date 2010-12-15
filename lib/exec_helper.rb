@@ -16,18 +16,20 @@ module ExecHelper
       @exit_code = exit_code
       @std_out = std_out
       @std_err = std_err
+puts "ExecError: #{message}" # TODO use logger
     end
     
     def message
-# TODO Format message 
-      "Task: '#{description}'\nCmd: #{cmd}\n#{to_s}.\nStdout: '#{output}'\nstderr: '#{error}'" 
+      message = "#{to_s}\nTask: #{description}\nCmd: #{cmd}"
+      message <<= "\nStandard output: '#{std_out}'" unless std_out.blank?
+      message <<= "\nStandard error: '#{std_err}'" unless std_err.blank?
     end
   end
   
-  def run_cmd1(cmd, description)
+  def run_cmd(cmd, description)
     output = nil
     error = nil
-puts "#{description} => Running: '#{cmd}'"
+puts "#{description} => Running: '#{cmd}'" # TODO use logger
     begin
       status = Open4::popen4(cmd) do |pid, stdin, stdout, stderr|
         output = stdout.read
@@ -38,11 +40,12 @@ puts "#{description} => Running: '#{cmd}'"
       raise ExecError.new(cmd, description), l(:exec_error_cant_start_program) + ": #{e}"
     end
     raise ExecError.new(cmd, description), l(:exec_error_cant_start_program)  if status == nil
-    status = status.exitstatus
-    if status == 0
+    exit_code = status.exitstatus
+    if exit_code == 0
+puts "Success\nStdOut: '#{output}'\nStdErr: '#{error}'"# TODO use logger
       output
     else
-      raise ExecError.new(cmd, description, status, output, error), l(:exec_error_cant_start_program)
+      raise ExecError.new(cmd, description, exit_code, output, error), l(:exec_error_cant_start_program)
     end
   end
 end

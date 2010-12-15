@@ -5,29 +5,48 @@ class FbeeProjectConfigurationsController < ApplicationController
   include FbeeProjectConfigurationsHelper
   
   include ExecHelper
+  include Redmine::I18n
   
   def update
     load_project_and_project_configuration
     @fbee_project_configuration.attributes = params[:fbee_project_configuration]
-    @fbee_project_configuration.save
+    @fbee_project_configuration.save#{std_out}
     render(:update) {|page| page.replace_html "tab-content-fbee", :partial => 'projects/settings/redmine_fbee_project_configuration'}
   end
 
   def initialize_git_repository
     load_project_and_project_configuration
 
-    #ExecHelper::
-    puts '------------------'
-    puts run_cmd1 "ls -la", "Running test program"
-    puts '------------------'
-
-    flash.now[:notice] = 'Initialized successfully'
-      render(:update) {|page| page.replace_html "tab-content-fbee", :partial => 'projects/settings/redmine_fbee_project_configuration'}
+    if @initialized then
+      flash.now[:error] = l :repository_already_initialized
+    else
+      @fbee_project_configuration.do_with_private_key do
+        error_message = @fbee_project_configuration.initialize_repository
+        if error_message
+          flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
+        else
+          flash.now[:notice] = l :initialized_successfully
+          @initialized = true
+        end
+      end
+    end
+    render(:update) {|page| page.replace_html "tab-content-fbee", :partial => 'projects/settings/redmine_fbee_project_configuration'}
   end
 
   def reinitialize_git_repository
     load_project_and_project_configuration
-    flash.now[:notice] = 'Re-initialized successfully'
-      render(:update) {|page| page.replace_html "tab-content-fbee", :partial => 'projects/settings/redmine_fbee_project_configuration'}
+    unless @initialized then
+      flash.now[:error] = l :repository_not_initialized 
+    else
+      @fbee_project_configuration.do_with_private_key do
+        error_message = @fbee_project_configuration.reinitialize_repository
+        if error_message
+          flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
+        else
+          flash.now[:notice] = l :reinitialized_successfully
+        end
+      end
+    end
+    render(:update) {|page| page.replace_html "tab-content-fbee", :partial => 'projects/settings/redmine_fbee_project_configuration'}
   end
 end

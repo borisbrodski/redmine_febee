@@ -14,7 +14,7 @@ en:
   field_git_user_name: Git user name
   hint_git_user_name: User name to use for git user.name config variable
   field_git_email_name: Git e-mail address
-  hint_git_email_name: E-mail address to use for git user.email config variable
+  hint_git_email: E-mail address to use for git user.email config variable
   button_initialize: Initialize
   button_reinitialize: Re-initialize
   
@@ -27,4 +27,7 @@ en:
 
 # ExecHelper
   exec_error_cant_start_program: "ERROR: can't execute program."
-  
+  initialized_successfully: Initialized successfully
+  reinitialized_successfully: Re-initialized successfully
+  repository_already_initialized: Repository is already initialized
+  repository_not_initialized: Repository is not initialized
