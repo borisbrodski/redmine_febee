@@ -1,3 +1,6 @@
-<% if User.current.allowed_to? :view_fbee, @project %>
-<h1>Test2</h1>
-<% end %>
+<%- if User.current.allowed_to? :view_feature_branches, @project -%>
+<hr>
+<p><strong><%= l :section_feature_branches %></strong></p>
+
+
+<%- end -%>

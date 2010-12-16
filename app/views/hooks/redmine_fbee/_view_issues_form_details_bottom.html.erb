@@ -1,3 +1,11 @@
-<% if User.current.allowed_to? :view_fbee, @project %>
-<h1>Test (<%= Setting.plugin_redmine_fbee['tab_name'] %>)</h1>
+<% if @base_branches %>
+<p>
+
+<label><%= l :issue_form_feature_branch_for %></label>
+<%=select_tag "create_branch_name",
+   options_for_select(@base_branches)
+%>
+<%= submit_tag l :issue_form_create_branch %>
+
+</p>
 <% end %>

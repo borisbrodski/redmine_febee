@@ -6,8 +6,9 @@ class GitRepository
 
   include ExecHelper
   
-  def initialize(local_path)
+  def initialize(local_path, private_key)
     @local_path = local_path
+    @private_key = private_key
     begin
       @grit_repository = Grit::Repo.new(local_path)
     rescue
@@ -18,14 +19,15 @@ class GitRepository
     @repository_initialized ||= @grit_repository.heads.count > 0 if @grit_repository
   end
   
-  def do_with_private_key private_key
-    prepare_keys private_key unless private_key.blank?
-    yield
+  def access_git
+    prepare_keys
+    fetch_from_server
+    yield self
   ensure
     remove_keys
   end
-  
-  def reinitialize_repository private_key
+
+  def reinitialize_repository
     # Try to prevent 'rm -rf /'
     unless !@local_path.blank? && @local_path =~ /[^\\\/]/
       raise "Removing '#{@local_path}' is too dangerous."
@@ -33,16 +35,33 @@ class GitRepository
     puts "Removing #{File.join @local_path, '*'}"
     FileUtils.rm_rf Dir.glob(File.join(@local_path, '*'))
     FileUtils.rm_rf Dir.glob(File.join(@local_path, '.*')).select {|f| f !~ /\/..?$/}
-    initialize_repository private_key
+    initialize_repository
   end
   
-  def initialize_repository private_key
+  def initialize_repository
     run_with_git "clone ssh://redmine@localhost:29418/SERVER .", "Cloning project repository from ssh://redmine@localhost:29418/SERVER"
     nil
   rescue ExecError => e
      e.message
   end
 
+  def base_branches
+    branches.select{|name| name !~ /\//}
+  end
+  
+  def branches
+    return @branches if @branches
+
+    output = run_with_git "branch -r", "Retrieving remote branches"
+    @branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->|\// }
+  end
+
+private
+
+  def fetch_from_server
+    run_with_git "fetch origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
+  end
+  
   def generate_random_filename prefix, postfix, dir
     for i in 1..100
       name = "#{prefix}#{rand(10000000)}#{rand(10000000)}#{postfix}"
@@ -52,11 +71,12 @@ class GitRepository
     raise "Can't pick a unique temporary file name"
   end
 
-  def prepare_keys private_key
+  def prepare_keys
+    return if @private_key.blank?
     @private_key_full_path = generate_random_filename('pk', '', "#{Rails.root}/tmp")
     puts "@private_key_full_path=#{@private_key_full_path}"
     private_key_file = File.new(@private_key_full_path, 'w')
-    private_key_file.write private_key
+    private_key_file.write @private_key
     private_key_file.close
     
     @git_ssh_full_path = generate_random_filename('git_ssh', '.cmd', "#{Rails.root}/tmp")

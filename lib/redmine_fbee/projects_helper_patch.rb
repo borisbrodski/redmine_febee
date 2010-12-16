@@ -14,10 +14,14 @@ module RedmineFbee
       # Adds a FBEE tab to the project settings page
       def project_settings_tabs_with_fbee
         tabs = project_settings_tabs_without_fbee
-        tabs << { :name => 'fbee',
-                  :action => :manage_fbee_project_configuration,
-                  :partial => 'projects/settings/redmine_fbee_project_configuration',
-                  :label => :fbee_project_configuration}
+        if User.current.allowed_to? :manage_fbee_project_configuration, @project then
+          tabs << { :name => 'fbee',
+                    :action => :manage_fbee_project_configuration,
+                    :partial => 'projects/settings/redmine_fbee_project_configuration',
+                    :label => :fbee_project_configuration
+          }
+        end
+        tabs
       end
     end
   end
