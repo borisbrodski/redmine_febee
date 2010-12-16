@@ -37,8 +37,17 @@ Redmine::Plugin.register :redmine_fbee do
 end
 
 Dispatcher.to_prepare do
-  ProjectsHelper.send :include, RedmineFbee::ProjectsHelperPatch
-  ProjectsController.send :include, RedmineFbee::ProjectsControllerPatch
-  Project.send :include, RedmineFbee::ProjectPatch
+  unless ProjectsHelper.included_modules.include? RedmineFbee::ProjectsHelperPatch
+    ProjectsHelper.send :include, RedmineFbee::ProjectsHelperPatch
+  end
+  unless ProjectsController.included_modules.include? RedmineFbee::ProjectsControllerPatch
+    ProjectsController.send :include, RedmineFbee::ProjectsControllerPatch
+  end
+  unless Project.included_modules.include? RedmineFbee::ProjectPatch
+    Project.send :include, RedmineFbee::ProjectPatch
+  end
+  unless IssuesController.included_modules.include? RedmineFbee::IssuesControllerPatch
+    IssuesController.send :include, RedmineFbee::IssuesControllerPatch
+  end
 end
 
