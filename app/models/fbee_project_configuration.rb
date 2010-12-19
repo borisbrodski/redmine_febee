@@ -4,7 +4,7 @@ class FbeeProjectConfiguration < ActiveRecord::Base
   
   belongs_to :project
   validates_presence_of :workspace, :git_url, :git_user_name, :git_email_name
-  validates_format_of :git_url, :with => /ssh:\/\/[^:]+\/.*/,
+  validates_format_of :git_url, :with => /ssh:\/\/[^\/]+\/.*/,
                       :message => "Git url should have the format 'ssh://[username@]host[:port]/[path]"
   
   def validate
@@ -16,8 +16,8 @@ class FbeeProjectConfiguration < ActiveRecord::Base
     end
   end
 
-  def access_git
-    git_repository.access_git {|git| yield git}
+  def access_git for_initialization = false
+    git_repository.access_git(for_initialization) {|git| yield git}
   end
 
   def workspace_initialized?
@@ -26,7 +26,7 @@ class FbeeProjectConfiguration < ActiveRecord::Base
 
 private
   def git_repository
-    @git_repository ||= GitRepository.new(workspace, private_key)
+    @git_repository ||= GitRepository.new(self)
   end
 
 end

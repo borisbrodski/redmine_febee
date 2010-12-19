@@ -6,11 +6,10 @@ class GitRepository
 
   include ExecHelper
   
-  def initialize(local_path, private_key)
-    @local_path = local_path
-    @private_key = private_key
+  def initialize(project_configuration)
+    @project_configuration = project_configuration
     begin
-      @grit_repository = Grit::Repo.new(local_path)
+      @grit_repository = Grit::Repo.new(project_configuration.workspace)
     rescue
     end
   end
@@ -18,28 +17,30 @@ class GitRepository
   def repository_initialized?
     @repository_initialized ||= @grit_repository.heads.count > 0 if @grit_repository
   end
-  
-  def access_git
+
+  def access_git for_initialization = false
     prepare_keys
-    fetch_from_server
+    fetch_from_server unless for_initialization
     yield self
   ensure
     remove_keys
   end
 
   def reinitialize_repository
+    local_path = @project_configuration.workspace
     # Try to prevent 'rm -rf /'
-    unless !@local_path.blank? && @local_path =~ /[^\\\/]/
-      raise "Removing '#{@local_path}' is too dangerous."
+    unless !local_path.blank? && local_path =~ /[^\\\/]/
+      raise "Removing '#{local_path}' is too dangerous."
     end
-    puts "Removing #{File.join @local_path, '*'}"
-    FileUtils.rm_rf Dir.glob(File.join(@local_path, '*'))
-    FileUtils.rm_rf Dir.glob(File.join(@local_path, '.*')).select {|f| f !~ /\/..?$/}
+    puts "Removing #{File.join local_path, '*'}"
+    FileUtils.rm_rf Dir.glob(File.join(local_path, '*'))
+    FileUtils.rm_rf Dir.glob(File.join(local_path, '.*')).select {|f| f !~ /\/..?$/}
     initialize_repository
   end
   
   def initialize_repository
-    run_with_git "clone ssh://redmine@localhost:29418/SERVER .", "Cloning project repository from ssh://redmine@localhost:29418/SERVER"
+    url = @project_configuration.git_url
+    run_with_git "clone #{url} .", "Cloning project repository from #{url}"
     nil
   rescue ExecError => e
      e.message
@@ -52,8 +53,18 @@ class GitRepository
   def branches
     return @branches if @branches
 
+    # TODO use grit here
     output = run_with_git "branch -r", "Retrieving remote branches"
     @branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->|\// }
+  end
+
+  def unique_feature_branch_name feature_branch_name
+    name = 'feature/' % feature_branch_name
+    return feature_branch_name unless branches.includes? name
+  end
+
+  def create_branch new_branch_name, base_branch_name
+    run_with_git "push origin refs/remotes/origin/#{base_branch_name}:refs/heads/feature/#{new_branch_name}"
   end
 
 private
@@ -72,11 +83,12 @@ private
   end
 
   def prepare_keys
-    return if @private_key.blank?
+    private_key = @project_configuration.private_key
+    return if private_key.blank?
     @private_key_full_path = generate_random_filename('pk', '', "#{Rails.root}/tmp")
     puts "@private_key_full_path=#{@private_key_full_path}"
     private_key_file = File.new(@private_key_full_path, 'w')
-    private_key_file.write @private_key
+    private_key_file.write private_key
     private_key_file.close
     
     @git_ssh_full_path = generate_random_filename('git_ssh', '.cmd', "#{Rails.root}/tmp")
@@ -103,7 +115,7 @@ private
   end
 
   def run_with_bash(cmd, description)
-    bash_c_cmd = "cd #{single_qoute(@local_path)} && #{cmd}"
+    bash_c_cmd = "cd #{single_qoute(@project_configuration.workspace)} && #{cmd}"
     bash_cmd = "#{single_qoute(Setting.plugin_redmine_fbee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
     run_cmd bash_cmd, description
   end

@@ -20,7 +20,7 @@ class FbeeProjectConfigurationsController < ApplicationController
     if @initialized then
       flash.now[:error] = l :repository_already_initialized
     else
-      @fbee_project_configuration.access_git do |git|
+      @fbee_project_configuration.access_git(true) do |git|
         error_message = git.initialize_repository
         if error_message
           flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
@@ -38,7 +38,7 @@ class FbeeProjectConfigurationsController < ApplicationController
     unless @initialized then
       flash.now[:error] = l :repository_not_initialized 
     else
-      @fbee_project_configuration.access_git do |git|
+      @fbee_project_configuration.access_git true do |git|
         error_message = git.reinitialize_repository
         if error_message
           flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
