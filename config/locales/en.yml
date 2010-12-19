@@ -2,6 +2,7 @@
 en:
 # Project configuration
   febee_project_configuration: FeBEE
+  project_module_febee: FeBEE
   field_git_url: Git url
   hint_git_url: Url to git or gerrit server
   field_workspace: Workspace path
