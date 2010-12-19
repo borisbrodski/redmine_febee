@@ -94,7 +94,7 @@ private
     @git_ssh_full_path = generate_random_filename('git_ssh', '.cmd', "#{Rails.root}/tmp")
     puts "@git_ssh_full_path=#{@git_ssh_full_path}"
     git_ssh_file = File.new(@git_ssh_full_path, 'w')
-    git_ssh_file.write single_qoute(Setting.plugin_redmine_fbee['cmd_ssh'])
+    git_ssh_file.write single_qoute(Setting.plugin_redmine_febee['cmd_ssh'])
     git_ssh_file.write " -i #{single_qoute(@private_key_full_path)} $@"
     git_ssh_file.close
     
@@ -111,12 +111,12 @@ private
 
   def run_with_git(cmd, description)
     git_ssh = "GIT_SSH=#{single_qoute(@git_ssh_full_path)} " unless @git_ssh_full_path.blank?
-    run_with_bash "#{git_ssh}#{single_qoute(Setting.plugin_redmine_fbee['cmd_git'])} #{cmd}", description
+    run_with_bash "#{git_ssh}#{single_qoute(Setting.plugin_redmine_febee['cmd_git'])} #{cmd}", description
   end
 
   def run_with_bash(cmd, description)
     bash_c_cmd = "cd #{single_qoute(@project_configuration.workspace)} && #{cmd}"
-    bash_cmd = "#{single_qoute(Setting.plugin_redmine_fbee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
+    bash_cmd = "#{single_qoute(Setting.plugin_redmine_febee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
     run_cmd bash_cmd, description
   end
   

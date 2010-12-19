@@ -1,14 +1,14 @@
 <% size = 50 %>
 <% area_cols = 58 %>
 <% area_rows = 6 %>
-<% remote_form_for :fbee_project_configuration,
-                   @fbee_project_configuration,
-                   :url => { :controller => 'fbee_project_configurations', :action => 'update', :id => @project },
+<% remote_form_for :febee_project_configuration,
+                   @febee_project_configuration,
+                   :url => { :controller => 'febee_project_configurations', :action => 'update', :id => @project },
                    :builder => TabularFormBuilder,
                    :lang => current_language do |f| %>
 
 <%= render_flash_messages %>
-<%= error_messages_for 'fbee_project_configuration' %>
+<%= error_messages_for 'febee_project_configuration' %>
 
 <div class="box tabular">
 <p><%= f.text_field :git_url, :size => size, :required => true %><br />
@@ -17,11 +17,11 @@
 <p><%= f.text_field :workspace, :size => size, :required => true %>
   <% if @initialized %>
     <%= submit_to_remote :reinitialize, l(:button_reinitialize),
-      :url => { :controller => 'fbee_project_configurations', :action => 'reinitialize_git_repository', :id => @project} %>
+      :url => { :controller => 'febee_project_configurations', :action => 'reinitialize_git_repository', :id => @project} %>
   <% else %>
     <%= submit_to_remote :initialize, l(:button_initialize),
-      :url => { :controller => 'fbee_project_configurations', :action => 'initialize_git_repository', :id => @project} %>
-    (<b><%= l :fbee_not_initialized %></b>)
+      :url => { :controller => 'febee_project_configurations', :action => 'initialize_git_repository', :id => @project} %>
+    (<b><%= l :febee_not_initialized %></b>)
   <% end %>
   <br />
   <em><%=l :hint_workspace %></em></p>

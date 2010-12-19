@@ -1,5 +1,5 @@
 
-class FbeeProjectConfiguration < ActiveRecord::Base
+class FebeeProjectConfiguration < ActiveRecord::Base
   unloadable
   
   belongs_to :project

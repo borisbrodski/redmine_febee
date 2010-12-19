@@ -1,22 +1,22 @@
 require_dependency 'issues_controller'
 
-module RedmineFbee
+module RedmineFebee
   module IssuesControllerPatch
     module InstanceMethods
 
-      def show_with_fbee
-        show_without_fbee
+      def show_with_febee
+        show_without_febee
       end
       
-      def update_with_fbee
-        update_without_fbee
+      def update_with_febee
+        update_without_febee
       end
       
-      def edit_with_fbee
-        edit_without_fbee
+      def edit_with_febee
+        edit_without_febee
       end
 
-      def fbee_load
+      def febee_load
         if User.current.allowed_to? :create_feature_branch, @project
           schedule_git_task do |git|
             @base_branches = git.base_branches
@@ -24,7 +24,7 @@ module RedmineFbee
         end
       end
 
-      def fbee_edit
+      def febee_edit
         if params[:create_feature_branch] then
           schedule_git_task do |git|
             name = params[:create_feature_branch_name]
@@ -42,16 +42,16 @@ module RedmineFbee
     
     def self.included(receiver)
       receiver.send :include, InstanceMethods
-      receiver.send :include, FbeeHelper
+      receiver.send :include, FebeeHelper
 
       receiver.class_eval do
-        before_filter :fbee_load, :only => [:show, :edit, :update]
-        before_filter :fbee_edit, :only => [:update, :edit]
+        before_filter :febee_load, :only => [:show, :edit, :update]
+        before_filter :febee_edit, :only => [:update, :edit]
         before_filter :execute_git_tasks, :only => [:show, :edit, :update]
         
-        alias_method_chain :show, :fbee
-        alias_method_chain :update, :fbee
-        alias_method_chain :edit, :fbee
+        alias_method_chain :show, :febee
+        alias_method_chain :update, :febee
+        alias_method_chain :edit, :febee
       end
     end
   end

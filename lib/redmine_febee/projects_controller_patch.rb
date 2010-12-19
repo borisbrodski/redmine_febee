@@ -1,11 +1,11 @@
 require_dependency 'projects_controller'
 
-module RedmineFbee
+module RedmineFebee
   module ProjectsControllerPatch
     module InstanceMethods
-      include FbeeProjectConfigurationsHelper
-      def settings_with_fbee
-        settings_without_fbee
+      include FebeeProjectConfigurationsHelper
+      def settings_with_febee
+        settings_without_febee
         load_project_and_project_configuration
       end
     end
@@ -14,7 +14,7 @@ module RedmineFbee
       receiver.send :include, InstanceMethods
       
       receiver.class_eval do
-        alias_method_chain :settings, :fbee
+        alias_method_chain :settings, :febee
       end
     end
   end

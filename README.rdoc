@@ -1,6 +1,6 @@
-= Feature branch enabled environment (FBEE)
+= Feature branch enabled environment (FeBEE)
 
-This is a feature branch enabled environment (FBEE) plugin for redmine.
+This is a feature branch enabled environment (FeBEE) plugin for redmine.
 It allows:
 - creating issue releated feature branches from the redmine
 - tracking created branches
