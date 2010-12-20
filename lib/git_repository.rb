@@ -5,7 +5,7 @@ class GitRepository
   attr :local_path
 
   include ExecHelper
-  
+
   def initialize(project_configuration)
     @project_configuration = project_configuration
     begin
@@ -47,7 +47,7 @@ class GitRepository
   end
 
   def base_branches
-    branches.select{|name| name !~ /\//}
+    @base_branches ||= branches.select{|name| name !~ /\//}
   end
   
   def branches
@@ -55,16 +55,30 @@ class GitRepository
 
     # TODO use grit here
     output = run_with_git "branch -r", "Retrieving remote branches"
-    @branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->|\// }
+    @branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->/ }
   end
 
-  def unique_feature_branch_name feature_branch_name
-    name = 'feature/' % feature_branch_name
-    return feature_branch_name unless branches.includes? name
+  def create_feature_branch base_branch_name, issue_id
+    return nil unless base_branches.include? base_branch_name
+    name = unique_feature_branch_name "issue_#{issue_id}", base_branch_name
+    create_branch name, base_branch_name
+    name
+  end
+
+  def unique_feature_branch_name feature_branch_name, base_branch_name
+    counter = 0
+    begin
+      name = "feature/#{feature_branch_name}"
+      name << "_#{base_branch_name}" unless base_branch_name == 'master'
+      name << "_#{counter}" unless counter == 0
+      counter += 1
+    end while branches.include? name
+    name
   end
 
   def create_branch new_branch_name, base_branch_name
-    run_with_git "push origin refs/remotes/origin/#{base_branch_name}:refs/heads/feature/#{new_branch_name}"
+    run_with_git "push origin refs/remotes/origin/#{base_branch_name}:refs/heads/#{new_branch_name}",
+                 "Create feature branch '#{new_branch_name}' based on '#{base_branch_name}'"
   end
 
 private

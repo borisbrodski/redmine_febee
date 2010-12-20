@@ -29,7 +29,8 @@ module RedmineFebee
           schedule_git_task do |git|
             name = params[:create_feature_branch_name]
             if @base_branches.include? name
-              git.create_feature_branch
+              new_branch_name = git.create_feature_branch name, params[:id]
+              flash[:notice] = "Feature branch created: #{new_branch_name}"
             else
               flash[:error] = "Base branch not found #{name}"
             end
