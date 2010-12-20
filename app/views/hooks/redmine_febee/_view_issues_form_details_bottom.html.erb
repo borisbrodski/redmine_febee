@@ -2,7 +2,7 @@
 <p>
 
 <label><%= l :issue_form_feature_branch_for %></label>
-<%=select_tag "create_feature_branch_name",
+<%=select_tag "base_branch_name",
    options_for_select(@base_branches)
 %>
 <%# TODO Get 'submit_tag l :issue_form_create_branch, :name => 'create_feature_branch' ' to work %>

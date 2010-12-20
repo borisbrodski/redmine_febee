@@ -7,11 +7,11 @@ module RedmineFebee
       def show_with_febee
         show_without_febee
       end
-      
+
       def update_with_febee
         update_without_febee
       end
-      
+
       def edit_with_febee
         edit_without_febee
       end
@@ -22,23 +22,37 @@ module RedmineFebee
             @base_branches = git.base_branches
           end unless @base_branches
         end
+        if User.current.allowed_to? :view_feature_branches, @project
+          @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
+        end
       end
 
       def febee_edit
         if params[:create_feature_branch] then
           schedule_git_task do |git|
-            name = params[:create_feature_branch_name]
-            if @base_branches.include? name
-              new_branch_name = git.create_feature_branch name, params[:id]
+            base_branch_name = params[:base_branch_name]
+            if @base_branches.include? base_branch_name
+              new_branch_name = git.create_feature_branch base_branch_name, params[:id]
+              
+              create_feature_branch new_branch_name, base_branch_name, 'xxx TODO'
               flash[:notice] = "Feature branch created: #{new_branch_name}"
             else
-              flash[:error] = "Base branch not found #{name}"
+              flash[:error] = "Base branch not found #{base_branch_name}"
             end
           end
           execute_git_tasks
           redirect_to :action => :show
         end
       end
+    end
+
+    def create_feature_branch new_branch_name, base_branch_name, last_base_sha1
+      feature_branch = FeatureBranch.new(:issue_id => params[:id],
+                                         :name => new_branch_name,
+                                         :based_on_name => base_branch_name,
+                                         :last_base_sha1 => last_base_sha1)
+      feature_branch.prepare_create
+      feature_branch.save
     end
     
     def self.included(receiver)
