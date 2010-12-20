@@ -3,4 +3,5 @@
 - Lock workspace through database lock
 - Catch ExecError in all controller actions using GitRepository
 - Save feature branches names without 'feature/'
-- Make 'feature/', 'feature_old/' project configurable 
+- Make 'feature/', 'feature_old/' project configurable
+- Add issue like info 'Updated by Redmine Admin 12 days ago' to feature branch view 
