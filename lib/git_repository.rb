@@ -84,7 +84,7 @@ class GitRepository
 private
 
   def fetch_from_server
-    run_with_git "fetch origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
+    run_with_git "fetch --prune origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
   end
   
   def generate_random_filename prefix, postfix, dir
