@@ -5,3 +5,4 @@
 - Save feature branches names without 'feature/'
 - Make 'feature/', 'feature_old/' project configurable
 - Add issue like info 'Updated by Redmine Admin 12 days ago' to feature branch view 
+- user logger 
