@@ -2,10 +2,11 @@ require 'redmine'
 require 'dispatcher'
 
 # TODO solve this
-def PGconn.quote_ident(name)
-%("#{name}")
-end 
-
+if defined?(PGconn)
+  def PGconn.quote_ident(name)
+  %("#{name}")
+  end 
+end
 
 require_dependency 'redmine_febee/hooks'
 require_dependency 'redmine_febee/project_patch'
