@@ -11,7 +11,7 @@ febee_project_configuration_one:
 febee_project_configuration_two:
   id: 2
   project_id: 2
-  git_url: <%= TEST_CONFIG['gerrit_git_url'] %>
+  git_url: <%= FEBEE_TEST_CONFIG['gerrit_git_url'] %>
   is_gerrit: true
   private_key:
   public_key:
