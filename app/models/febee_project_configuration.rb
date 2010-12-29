@@ -3,6 +3,7 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   unloadable
   
   belongs_to :project
+  has_one :febee_workspace
   validates_presence_of :workspace, :git_url, :git_user_name, :git_email_name
   validates_format_of :git_url, :with => /ssh:\/\/[^\/]+\/.*/,
                       :message => "Git url should have the format 'ssh://[username@]host[:port]/[path]"
