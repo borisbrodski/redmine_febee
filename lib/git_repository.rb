@@ -133,7 +133,6 @@ private
     bash_cmd = "#{single_qoute(Setting.plugin_redmine_febee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
     run_cmd bash_cmd, description
   end
-  
   def single_qoute cmd
     "'#{cmd.gsub("'", "'\\\\''")}'"
   end

@@ -1,0 +1,3 @@
+test_configuration:
+  git_cmd: git
+  gerrit_git_url: ssh://localhost:29418/Project1.git

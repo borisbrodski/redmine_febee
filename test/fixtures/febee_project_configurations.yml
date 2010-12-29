@@ -1,0 +1,19 @@
+febee_project_configuration_one:
+  id: 1
+  project_id: 1
+  git_url: /tmp/git
+  is_gerrit: false
+  private_key:
+  public_key:
+  git_user_name: redmine
+  git_email_name: redmine@localhost
+
+febee_project_configuration_two:
+  id: 2
+  project_id: 2
+  git_url: <%= TEST_CONFIG['gerrit_git_url'] %>
+  is_gerrit: true
+  private_key:
+  public_key:
+  git_user_name: redmine
+  git_email_name: redmine@localhost

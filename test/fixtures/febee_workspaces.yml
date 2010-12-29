@@ -1,0 +1,6 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+workspace_one:
+  id: 1
+  febee_project_configuration_id: 1
+  path: <%= RAILS_ROOT %>/tmp/workspace_one
+  last_git_fetch: 2010-12-26 10:44:47

@@ -1,7 +1,13 @@
 # Load the normal Rails helper
-require File.expand_path(File.dirname(__FILE__) + '/../../../../test/test_helper')
+
+PLUGIN_PATH="#{File.expand_path(File.dirname(__FILE__))}/.."
+
+require "#{PLUGIN_PATH}/../../../test/test_helper"
 require "rbconfig"
 
+TEST_CONFIG = YAML.load_file("#{PLUGIN_PATH}/config/test_configuration.yml")["test_configuration"]
+
+# TODO Raise exception, if no test configuration file was loaded
 
 # Ensure that we are using the temporary fixture path
 Engines::Testing.set_fixture_path
@@ -9,6 +15,8 @@ Engines::Testing.set_fixture_path
 def ruby_executable
   @ruby_executable ||= File.join(Config::CONFIG["bindir"], Config::CONFIG["ruby_install_name"])
 end
+
+
 
 module SaveTestDescription
   def test(name, &block)
