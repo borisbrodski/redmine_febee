@@ -11,7 +11,7 @@ class AddSshKeysToFebeeProjectConfigurations < ActiveRecord::Migration
     remove_column :febee_project_configurations, :is_gerrit
     remove_column :febee_project_configurations, :private_key
     remove_column :febee_project_configurations, :public_key
-    remove_column :febee_project_configurations, :git_user_name, :string
-    remove_column :febee_project_configurations, :git_email_name, :string
+    remove_column :febee_project_configurations, :git_user_name
+    remove_column :febee_project_configurations, :git_email_name
   end
 end
