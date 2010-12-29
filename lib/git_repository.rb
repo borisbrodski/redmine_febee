@@ -122,7 +122,6 @@ private
     File.delete @git_ssh_full_path unless @git_ssh_full_path.blank?
   end
 
-
   def run_with_git(cmd, description)
     git_ssh = "GIT_SSH=#{single_qoute(@git_ssh_full_path)} " unless @git_ssh_full_path.blank?
     run_with_bash "#{git_ssh}#{single_qoute(Setting.plugin_redmine_febee['cmd_git'])} #{cmd}", description
@@ -131,9 +130,6 @@ private
   def run_with_bash(cmd, description)
     bash_c_cmd = "cd #{single_qoute(@project_configuration.workspace)} && #{cmd}"
     bash_cmd = "#{single_qoute(Setting.plugin_redmine_febee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
-    run_cmd bash_cmd, description
-  end
-  def single_qoute cmd
-    "'#{cmd.gsub("'", "'\\\\''")}'"
+    run_cmd description, bash_cmd
   end
 end

@@ -2,5 +2,5 @@
 workspace_one:
   id: 1
   febee_project_configuration_id: 1
-  path: <%= RAILS_ROOT %>/tmp/workspace_one
+  path: <%= workspace_one_path %>
   last_git_fetch: 2010-12-26 10:44:47

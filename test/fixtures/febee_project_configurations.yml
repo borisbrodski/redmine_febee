@@ -1,4 +1,4 @@
-febee_project_configuration_one:
+febee_project_configuration_without_gerrit:
   id: 1
   project_id: 1
   git_url: /tmp/git
@@ -8,7 +8,7 @@ febee_project_configuration_one:
   git_user_name: redmine
   git_email_name: redmine@localhost
 
-febee_project_configuration_two:
+febee_project_configuration_with_gerrit:
   id: 2
   project_id: 2
   git_url: <%= FEBEE_TEST_CONFIG['gerrit_git_url'] %>

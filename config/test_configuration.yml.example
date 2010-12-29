@@ -1,3 +1,6 @@
 test_configuration:
-  git_cmd: git
+  git_cmd: /usr/local/git/bin/git
+  cmd_ssh: /usr/bin/ssh
+  cmd_bash: /bin/bash
+
   gerrit_git_url: ssh://localhost:29418/Project1.git
