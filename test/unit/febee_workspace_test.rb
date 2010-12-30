@@ -28,6 +28,15 @@ class FebeeWorkspaceTest < ActiveSupport::TestCase
     run_git_cmd "Commit", git_repository_path, "commit -m 'Another two new files'"
     run_git_cmd "Push", git_repository_path, "push origin master:refs/heads/master"
 
+    # Create a release-branch
+    run_git_cmd "Create local branch", git_repository_path, "checkout -b release-1.x"
+    FileUtils.touch "#{git_repository_path}/file5-release-1.x.txt"
+    FileUtils.touch "#{git_repository_path}/file6-release-1.x.txt"
+    run_git_cmd "Stage new files", git_repository_path, "add ."
+    run_git_cmd "Commit", git_repository_path, "commit -m 'Release-1.x: Yet another two new files'"
+    run_git_cmd "Push", git_repository_path, "push origin HEAD:refs/heads/release-1.x"
+    
+    
     
 
     # Init git repository and do some commits
