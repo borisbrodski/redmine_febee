@@ -7,3 +7,11 @@ It allows:
 - squashing all commits on the feature branch to the one commit and
   - move the commit as a change to the gerrit or
   - merge the commit on the master or other release branch 
+
+Installation:
+- require gems:
+  - grit
+
+= Testing
+
+
