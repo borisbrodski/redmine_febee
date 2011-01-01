@@ -14,6 +14,8 @@ class FebeeWorkspaceTest < ActiveSupport::TestCase
 
     ensure_empty_directory(git_bare_repository_path)
     ensure_empty_directory(git_repository_path)
+    ensure_empty_directory(git_workspace_without_gerrit_path)
+    
     run_git_cmd "Initialize bare repository", git_bare_repository_path, "init --bare"
     run_git_cmd "Clone repository", git_repository_path, "clone #{git_bare_repository_path} ."
     run_git_cmd "Set git name", git_repository_path, "config user.name test-initializer"
@@ -29,7 +31,7 @@ class FebeeWorkspaceTest < ActiveSupport::TestCase
     run_git_cmd "Push", git_repository_path, "push origin master:refs/heads/master"
 
     # Create a release-branch
-    run_git_cmd "Create local branch", git_repository_path, "checkout -b release-1.x"
+    run_git_cmd "Create local branch", git_repository_path, "checkout -b release-1.x HEAD^"
     FileUtils.touch "#{git_repository_path}/file5-release-1.x.txt"
     FileUtils.touch "#{git_repository_path}/file6-release-1.x.txt"
     run_git_cmd "Stage new files", git_repository_path, "add ."
@@ -58,6 +60,15 @@ class FebeeWorkspaceTest < ActiveSupport::TestCase
 
   # Replace this with your real tests.
   def test_truth
-    assert true
+    git_repository = GitRepository.new @project_configuration
+    assert !git_repository.repository_initialized?, "Empty directory detected as a initialized repository"
+    git_repository.initialize_repository
+    git_repository = GitRepository.new @project_configuration
+    assert File.exists?("#{git_workspace_without_gerrit_path}/.git"), "Workspace git repository doesn't get initialized"
+    assert File.exists?("#{git_workspace_without_gerrit_path}/file1.txt")
+    assert File.exists?("#{git_workspace_without_gerrit_path}/file2.txt")
+    assert File.exists?("#{git_workspace_without_gerrit_path}/file3.txt")
+    assert File.exists?("#{git_workspace_without_gerrit_path}/file4.txt")
+    assert git_repository.repository_initialized?, "A directory after initialization detected as not initialized"
   end
 end

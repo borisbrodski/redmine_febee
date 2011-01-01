@@ -1,6 +1,12 @@
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-workspace_one:
+workspace_without_gerrit:
   id: 1
   febee_project_configuration_id: 1
-  path: <%= workspace_one_path %>
+  path: <%= git_workspace_without_gerrit_path %>
+  last_git_fetch: 2010-12-26 10:44:47
+
+workspace_with_gerrit:
+  id: 2
+  febee_project_configuration_id: 2
+  path: <%= git_workspace_with_gerrit_path %>
   last_git_fetch: 2010-12-26 10:44:47

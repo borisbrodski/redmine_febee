@@ -54,6 +54,6 @@ puts "Success\nStdOut: '#{output}'\nStdErr: '#{error}'"# TODO use logger
   end
 
   def single_qoute cmd
-    "'#{cmd.gsub("'", "'\\\\''")}'"
+    "'#{cmd.gsub("'", "'\\\\''")}'" if cmd
   end
 end

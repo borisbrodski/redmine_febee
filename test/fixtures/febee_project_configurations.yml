@@ -1,7 +1,7 @@
 febee_project_configuration_without_gerrit:
   id: 1
   project_id: 1
-  git_url: /tmp/git
+  git_url: <%= git_bare_repository_path %>
   is_gerrit: false
   private_key:
   public_key:

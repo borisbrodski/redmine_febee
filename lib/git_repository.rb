@@ -9,7 +9,7 @@ class GitRepository
   def initialize(project_configuration)
     @project_configuration = project_configuration
     begin
-      @grit_repository = Grit::Repo.new(project_configuration.workspace)
+      @grit_repository = Grit::Repo.new(project_configuration.febee_workspace.path)
     rescue
     end
   end
@@ -40,7 +40,7 @@ class GitRepository
   
   def initialize_repository
     url = @project_configuration.git_url
-    run_with_git "clone #{url} .", "Cloning project repository from #{url}"
+    run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
     nil
   rescue ExecError => e
      e.message
@@ -128,7 +128,7 @@ private
   end
 
   def run_with_bash(cmd, description)
-    bash_c_cmd = "cd #{single_qoute(@project_configuration.workspace)} && #{cmd}"
+    bash_c_cmd = "cd #{single_qoute(@project_configuration.febee_workspace.path)} && #{cmd}"
     bash_cmd = "#{single_qoute(Setting.plugin_redmine_febee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
     run_cmd description, bash_cmd
   end

@@ -24,12 +24,16 @@ def redmine_tmp_path
   "#{RAILS_ROOT}/tmp"
 end
 
-def git_bare_repository_path
-  "#{redmine_tmp_path}/git_bare_repository"
+def git_workspace_without_gerrit_path
+  "#{redmine_tmp_path}/workspace_without_gerrit"
 end
 
-def workspace_one_path
-  "#{redmine_tmp_path}/workspace_one"
+def git_workspace_with_gerrit_path
+  "#{redmine_tmp_path}/workspace_with_gerrit"
+end
+
+def git_bare_repository_path
+  "#{redmine_tmp_path}/git_bare_repository"
 end
 
 def ensure_empty_directory path
