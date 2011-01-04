@@ -5,6 +5,7 @@ class GitRepository
   attr :local_path
 
   include ExecHelper
+  include FebeeUtils
 
   def initialize(project_configuration)
     @project_configuration = project_configuration
@@ -27,14 +28,8 @@ class GitRepository
   end
 
   def reinitialize_repository
-    local_path = @project_configuration.workspace
-    # Try to prevent 'rm -rf /'
-    unless !local_path.blank? && local_path =~ /[^\\\/]/
-      raise "Removing '#{local_path}' is too dangerous."
-    end
-    puts "Removing #{File.join local_path, '*'}"
-    FileUtils.rm_rf Dir.glob(File.join(local_path, '*'))
-    FileUtils.rm_rf Dir.glob(File.join(local_path, '.*')).select {|f| f !~ /\/..?$/}
+    local_path = @project_configuration.febee_workspace.path
+    empty_non_root_directory local_path
     initialize_repository
   end
   
@@ -50,12 +45,12 @@ class GitRepository
     @base_branches ||= branches.select{|name| name !~ /\//}
   end
   
-  def branches
-    return @branches if @branches
+  def remote_branches
+    return @remote_branches if @remove_branches
 
     # TODO use grit here
     output = run_with_git "branch -r", "Retrieving remote branches"
-    @branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->/ }
+    @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->/ }
   end
 
   def create_feature_branch base_branch_name, issue_id
