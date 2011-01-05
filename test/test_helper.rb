@@ -41,6 +41,10 @@ def ensure_empty_directory path
     empty_non_root_directory(path)
 end
 
+def logger
+  RAILS_DEFAULT_LOGGER
+end
+
 module SaveTestDescription
   def test(name, &block)
     test_name = "test_#{name.gsub(/\s+/,'_')}".to_sym
