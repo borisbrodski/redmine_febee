@@ -4,17 +4,15 @@ module FebeeUtils
   def remove_non_root_directory path
     check_path_for_danger_to_remove path
   
-# TODO use logger
-puts "Removing '#{path}'"
+    logger.debug "Removing '#{path}'"
     FileUtils.rm_rf path
   end
   
   # Remove all files and subdirectories within 'path'
   def empty_non_root_directory path
     check_path_for_danger_to_remove path
-    
-# TODO use logger
-puts "Removing content of '#{File.join path, '*'}'"
+
+    logger.debug "Removing content of '#{File.join path, '*'}'"
     FileUtils.rm_rf Dir.glob(File.join(path, '*'))
     FileUtils.rm_rf Dir.glob(File.join(path, '.*')).select {|f| f !~ /\/..?$/}
   end

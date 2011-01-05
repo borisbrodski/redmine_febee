@@ -16,8 +16,7 @@ module ExecHelper
       @exit_code = exit_code
       @std_out = std_out
       @std_err = std_err
-# TODO use logger
-puts "ExecError: #{message}"
+      logger.warn "ExecError: #{message}"
     end
     
     def message
@@ -30,23 +29,20 @@ puts "ExecError: #{message}"
   def run_cmd(description, *cmds)
     output = nil
     error = nil
-# TODO Use logger
-puts "#{description} => Running: '#{cmds.join " "}'" # TODO use logger
+    logger.info "#{description} => Running: '#{cmds.join " "}'"
     begin
       status = Open4::popen4(*cmds) do |pid, stdin, stdout, stderr|
         output = stdout.read
         error = stderr.read
       end
     rescue Exception => e
-# TODO add caused by/use logger
-puts e
+      logger.warn e
       raise ExecError.new(cmds, description), l(:exec_error_cant_start_program) + ": #{e}"
     end
     raise ExecError.new(cmds, description), l(:exec_error_cant_start_program)  if status == nil
     exit_code = status.exitstatus
     if exit_code == 0
-# TODO Use logger
-puts "Success\nStdOut: '#{output}'\nStdErr: '#{error}'"# TODO use logger
+      logger.info "Success\nStdOut: '#{output}'\nStdErr: '#{error}'"
       output
     else
       raise ExecError.new(cmds, description, exit_code, output, error), l(:exec_error_cant_start_program)
