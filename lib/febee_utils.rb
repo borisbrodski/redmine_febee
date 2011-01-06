@@ -26,4 +26,10 @@ puts "Removing content of '#{File.join path, '*'}'"
       raise "Removing '#{absolute_path}' is too dangerous."
     end
   end
+  def with_file_lock(filename, *args)
+    File.open(filename, File::RDWR | File::CREAT) do |f|
+      f.flock(File::LOCK_EX)
+      yield *args
+    end
+  end
 end

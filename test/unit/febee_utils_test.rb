@@ -40,4 +40,41 @@ class FebeeUtilsTest < ActiveSupport::TestCase
     assert_equal 0, Dir.glob(File.join(@test_dir, '*')).size
     assert_equal 0, Dir.glob(File.join(@test_dir, '.*')).select {|f| f !~ /\/..?$/}.size
   end
+
+  def test_with_file_lock_with_new_file
+    testing_with_file_lock false
+  end
+
+  def test_with_file_lock_with_existed_file
+    testing_with_file_lock true
+  end
+
+  def testing_with_file_lock with_existed_file
+    thread_count = 5
+    repeat_count = 50
+    counter = 0
+    counters = [0] * thread_count
+    lock_filename = "#{@test_dir}/lock"
+    FileUtils.rm_rf lock_filename
+    FileUtils.touch lock_filename if with_existed_file
+    task = Proc.new do |n|
+      repeat_count.times do
+        with_file_lock(lock_filename, n) do |m|
+          c = counter
+          sleep 0.01
+          counter = c + 1
+          counters[m] += 1
+        end
+      end
+    end
+    threads = []
+    thread_count.times do |n|
+      threads[n] = Thread.new n, &task
+    end
+    thread_count.times do |n|
+      threads[n].join
+      assert_equal counters[n], repeat_count
+    end
+    assert_equal thread_count * repeat_count, counter
+  end
 end
