@@ -7,7 +7,7 @@ class RemoveWorkspaceFromFebeeProjectConfiguration < ActiveRecord::Migration
   
   def self.down
     change_table :febee_project_configurations do |t|
-      r.add :workspace, :string
+      r.string :workspace
     end
   end
 end
