@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class FebeeWorkspaceTest < ActiveSupport::TestCase
+class GitRepositoryTest < ActiveSupport::TestCase
   include ExecHelper
   include FebeeUtils
   
