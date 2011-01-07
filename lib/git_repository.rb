@@ -82,6 +82,13 @@ private
     run_with_git "fetch --prune origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
   end
   
+  def private_key_filenames
+    name = "pc_#{@project_configuration.id}_#{@project_configuration.private_key.hash}"
+    ["#{name}_git_ssh.cmd", "#{name}_private_key", "#{name}_complete"].map do |file|
+       File.join("#{Rails.root}/tmp", file)
+    end
+  end
+  
   def generate_random_filename prefix, postfix, dir
     for i in 1..100
       name = "#{prefix}#{rand(10000000)}#{rand(10000000)}#{postfix}"
@@ -92,6 +99,8 @@ private
   end
 
   def prepare_keys
+    git_ssh_filename, private_key_filename, complete_filename = private_key_filenames
+
     private_key = @project_configuration.private_key
     return if private_key.blank?
     @private_key_full_path = generate_random_filename('pk', '', "#{Rails.root}/tmp")

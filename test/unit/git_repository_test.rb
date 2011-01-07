@@ -81,6 +81,18 @@ class GitRepositoryTest < ActiveSupport::TestCase
     git_repository.reinitialize_repository
     assert !File.exists?("#{git_workspace_without_gerrit_path}/abcd.txt")
     assert git_repository.repository_initialized?, "A directory after reinitialization detected as not initialized"
-
+  end
+  
+  test "Generate filenames from private key" do
+    git_repository = GitRepository.new @project_configuration
+    filenames = git_repository.send :private_key_filenames
+    assert_equal 3, filenames.count
+    filenames.each do |filename|
+      assert filename.start_with? "#{Rails.root}/tmp/", "Wrong path (filename: '#{filename}')"
+    end
+    filenames.map! {|name| name.slice("#{Rails.root}/tmp/".length..-1)}
+    assert filenames[0] =~ /pc_[0-9]+_[-0-9]+_git_ssh.cmd/, "Wrong filename 0: '#{filenames[0]}'"
+    assert filenames[1] =~ /pc_[0-9]+_[-0-9]+_private_key/, "Wrong filename 1: '#{filenames[1]}'"
+    assert filenames[2] =~ /pc_[0-9]+_[-0-9]+_complete/, "Wrong filename 2: '#{filenames[2]}'"
   end
 end
