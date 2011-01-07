@@ -52,3 +52,5 @@ Dispatcher.to_prepare do
   end
 end
 
+config.middleware.use PerRequestCache
+
