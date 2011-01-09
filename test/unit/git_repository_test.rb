@@ -8,7 +8,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
 
   def setup
     @project_configuration = febee_project_configurations(:febee_project_configuration_without_gerrit)
-    @git_repository = GitRepository.new @project_configuration
+    @git_repository = GitRepository.new @project_configuration.febee_workspace
 
     @git_repository_path = "#{redmine_tmp_path}/git_repository"
 
@@ -59,10 +59,10 @@ class GitRepositoryTest < ActiveSupport::TestCase
   end
 
   test "Git repository initialization" do
-    git_repository = GitRepository.new @project_configuration
+    git_repository = GitRepository.new @project_configuration.febee_workspace
     assert !git_repository.repository_initialized?, "Empty directory detected as a initialized repository"
     git_repository.initialize_repository
-    git_repository = GitRepository.new @project_configuration
+    git_repository = GitRepository.new @project_configuration.febee_workspace
     assert File.exists?("#{git_workspace_without_gerrit_path}/.git"), "Workspace git repository doesn't get initialized"
     assert File.exists?("#{git_workspace_without_gerrit_path}/file1.txt")
     assert File.exists?("#{git_workspace_without_gerrit_path}/file2.txt")
@@ -72,10 +72,10 @@ class GitRepositoryTest < ActiveSupport::TestCase
   end
 
   test "Git repository reinitialization" do
-    git_repository = GitRepository.new @project_configuration
+    git_repository = GitRepository.new @project_configuration.febee_workspace
     assert !git_repository.repository_initialized?, "Empty directory detected as a initialized repository"
     git_repository.initialize_repository
-    git_repository = GitRepository.new @project_configuration
+    git_repository = GitRepository.new @project_configuration.febee_workspace
     assert git_repository.repository_initialized?, "A directory after initialization detected as not initialized"
     FileUtils.touch "#{@git_repository_path}/abcd.txt"
     git_repository.reinitialize_repository
@@ -84,7 +84,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
   end
   
   test "Generate filenames from private key" do
-    git_repository = GitRepository.new @project_configuration
+    git_repository = GitRepository.new @project_configuration.febee_workspace
     filenames = git_repository.send :private_key_filenames
     assert_equal 3, filenames.count
     filenames.each do |filename|

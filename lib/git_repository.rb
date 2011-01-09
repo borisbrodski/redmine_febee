@@ -7,11 +7,16 @@ class GitRepository
   include ExecHelper
   include FebeeUtils
 
-  def initialize(project_configuration)
-    @project_configuration = project_configuration
+  def initialize(workspace)
+    @project_configuration = workspace.febee_project_configuration
+    @workspace = workspace
     begin
-      @grit_repository = Grit::Repo.new(project_configuration.febee_workspace.path)
-    rescue
+      @grit_repository = Grit::Repo.new(@workspace.path)
+    rescue StandardError => e
+      logger.info "Uninitialized git repository in workspace: '#{@workspace.path}': #{e}"
+    end
+    unless @project_configuration.private_key.blank?
+      init_private_key 
     end
   end
 
@@ -28,7 +33,7 @@ class GitRepository
   end
 
   def reinitialize_repository
-    local_path = @project_configuration.febee_workspace.path
+    local_path = @workspace.path
     empty_non_root_directory local_path
     initialize_repository
   end
@@ -76,10 +81,19 @@ class GitRepository
                  "Create feature branch '#{new_branch_name}' based on '#{base_branch_name}'"
   end
 
-private
-
   def fetch_from_server
     run_with_git "fetch --prune origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
+  end
+
+private
+
+  def init_private_key
+    @git_ssh_filename, private_key_filename, complete_filename = private_key_filenames
+    lock_with_file(complete_filename) do
+      if File.exists?(@git_ssh_filename) && File.exists?(private_key_filenames)
+        prepare_private_key private_key_filename
+      end
+    end
   end
   
   def private_key_filenames
@@ -88,51 +102,30 @@ private
        File.join("#{Rails.root}/tmp", file)
     end
   end
-  
-  def generate_random_filename prefix, postfix, dir
-    for i in 1..100
-      name = "#{prefix}#{rand(10000000)}#{rand(10000000)}#{postfix}"
-      file_name = File.join(dir, name)
-      return File.expand_path(file_name) unless File.exists?(file_name)
-    end
-    raise "Can't pick a unique temporary file name"
-  end
 
-  def prepare_keys
-    git_ssh_filename, private_key_filename, complete_filename = private_key_filenames
-
-    private_key = @project_configuration.private_key
-    return if private_key.blank?
-    @private_key_full_path = generate_random_filename('pk', '', "#{Rails.root}/tmp")
-    puts "@private_key_full_path=#{@private_key_full_path}"
-    private_key_file = File.new(@private_key_full_path, 'w')
-    private_key_file.write private_key
+  def prepare_private_key(private_key_filename)
+    logger.debug "Generating #{@git_ssh_filename}, #{private_key_filename}"
+    private_key_file = File.new(private_key_filename, 'w')
+    private_key_file.write @project_configuration.private_key
     private_key_file.close
-    
-    @git_ssh_full_path = generate_random_filename('git_ssh', '.cmd', "#{Rails.root}/tmp")
-    puts "@git_ssh_full_path=#{@git_ssh_full_path}"
-    git_ssh_file = File.new(@git_ssh_full_path, 'w')
+
+    git_ssh_file = File.new(@git_ssh_filename, 'w')
     git_ssh_file.write single_qoute(Setting.plugin_redmine_febee['cmd_ssh'])
-    git_ssh_file.write " -i #{single_qoute(@private_key_full_path)} $@"
+    git_ssh_file.write " -i #{single_qoute(private_key_file)} $@"
     git_ssh_file.close
     
-    run_with_bash "chmod 0600 #{single_qoute(@private_key_full_path)} ; " +
-                  "chmod 0777 #{single_qoute(@git_ssh_full_path)}",
+    run_with_bash "chmod 0600 #{single_qoute(private_key_filename)} ; " +
+                  "chmod 0777 #{single_qoute(@git_ssh_filename)}",
                   "Set permissions on the temporary key and the git_ssh files"
   end
 
-  def remove_keys
-    File.delete @private_key_full_path unless @private_key_full_path.blank?
-    File.delete @git_ssh_full_path unless @git_ssh_full_path.blank?
-  end
-
   def run_with_git(cmd, description)
-    git_ssh = "GIT_SSH=#{single_qoute(@git_ssh_full_path)} " unless @git_ssh_full_path.blank?
+    git_ssh = "GIT_SSH=#{single_qoute(@git_ssh_filename)} " unless @git_ssh_filename.blank?
     run_with_bash "#{git_ssh}#{single_qoute(Setting.plugin_redmine_febee['cmd_git'])} #{cmd}", description
   end
 
   def run_with_bash(cmd, description)
-    bash_c_cmd = "cd #{single_qoute(@project_configuration.febee_workspace.path)} && #{cmd}"
+    bash_c_cmd = "cd #{single_qoute(@workspace.path)} && #{cmd}"
     bash_cmd = "#{single_qoute(Setting.plugin_redmine_febee['cmd_bash'])} -c #{single_qoute(bash_c_cmd)}"
     run_cmd description, bash_cmd
   end
