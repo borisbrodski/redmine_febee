@@ -45,6 +45,14 @@ def logger
   RAILS_DEFAULT_LOGGER
 end
 
+def load_from_configured_file file_test_config_key
+  filename = FEBEE_TEST_CONFIG[file_test_config_key.to_s]
+  return '' if filename.strip!.blank?
+  File(filename, 'r') do |f|
+    f.read
+  end
+end
+
 module SaveTestDescription
   def test(name, &block)
     test_name = "test_#{name.gsub(/\s+/,'_')}".to_sym
