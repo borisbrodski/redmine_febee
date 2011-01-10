@@ -13,7 +13,7 @@ febee_project_configuration_with_gerrit:
   project_id: 2
   git_url: <%= FEBEE_TEST_CONFIG['gerrit_git_url'] %>
   is_gerrit: true
-  private_key: <%= load_from_configured_file :gerrit_private_key_file %>
+  private_key: "<%= load_from_configured_file :gerrit_private_key_file %>"
   public_key:
   git_user_name: redmine
   git_email_name: redmine@localhost

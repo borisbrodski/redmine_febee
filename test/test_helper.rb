@@ -47,10 +47,13 @@ end
 
 def load_from_configured_file file_test_config_key
   filename = FEBEE_TEST_CONFIG[file_test_config_key.to_s]
-  return '' if filename.strip!.blank?
-  File(filename, 'r') do |f|
-    f.read
+  filename.strip! unless filename.blank?
+  return '' if filename.blank?
+  content = nil
+  File.open(File.join(FEBEE_PLUGIN_PATH, filename), 'r') do |f|
+    content = f.read
   end
+  content
 end
 
 module SaveTestDescription
