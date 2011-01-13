@@ -33,8 +33,10 @@ module ExecHelper
     logger.info "#{description} => Running: '#{cmds.join " "}'"
     begin
       status = Open4::popen4(*cmds) do |pid, stdin, stdout, stderr|
-        output = stdout.read
+        # TODO use timeout for waiting.
+        stdin.close
         error = stderr.read
+        output = stdout.read
       end
     rescue Exception => e
       logger.warn e

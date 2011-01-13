@@ -1,5 +1,5 @@
 require 'grit'
-require 'tempfile'
+#require 'tempfile'
 
 class GitRepository
   attr :local_path
@@ -21,15 +21,9 @@ class GitRepository
   end
 
   def repository_initialized?
+logger.info "grit: #{@grit_repository}"
+logger.info "grit: #{@grit_repository.heads.inspect}" if @grit_repository
     @repository_initialized ||= @grit_repository.heads.count > 0 if @grit_repository
-  end
-
-  def access_git for_initialization = false
-    prepare_keys
-    fetch_from_server unless for_initialization
-    yield self
-  ensure
-    remove_keys
   end
 
   def reinitialize_repository
@@ -41,9 +35,6 @@ class GitRepository
   def initialize_repository
     url = @project_configuration.git_url
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
-    nil
-  rescue ExecError => e
-     e.message
   end
 
   def base_branches
@@ -89,15 +80,16 @@ private
 
   def init_private_key
     @git_ssh_filename, private_key_filename, complete_filename = private_key_filenames
-    lock_with_file(complete_filename) do
-      if File.exists?(@git_ssh_filename) && File.exists?(private_key_filenames)
+    with_file_lock(complete_filename) do
+      unless File.exists?(@git_ssh_filename) && File.exists?(private_key_filename)
         prepare_private_key private_key_filename
       end
     end
   end
   
   def private_key_filenames
-    name = "pc_#{@project_configuration.id}_#{@project_configuration.private_key.hash}"
+    hash_code = private_key_file_content.hash ^ (git_ssh_file_content '').hash
+    name = "pc_#{@project_configuration.id}_#{hash_code}"
     ["#{name}_git_ssh.cmd", "#{name}_private_key", "#{name}_complete"].map do |file|
        File.join("#{Rails.root}/tmp", file)
     end
@@ -105,18 +97,27 @@ private
 
   def prepare_private_key(private_key_filename)
     logger.debug "Generating #{@git_ssh_filename}, #{private_key_filename}"
-    private_key_file = File.new(private_key_filename, 'w')
-    private_key_file.write @project_configuration.private_key
-    private_key_file.close
+    File.open(private_key_filename, 'w') do |file|
+      file.write private_key_file_content
+    end
 
-    git_ssh_file = File.new(@git_ssh_filename, 'w')
-    git_ssh_file.write single_qoute(Setting.plugin_redmine_febee['cmd_ssh'])
-    git_ssh_file.write " -i #{single_qoute(private_key_file)} $@"
-    git_ssh_file.close
+    File.open(@git_ssh_filename, 'w') do |file|
+      file.write git_ssh_file_content private_key_filename
+    end
     
     run_with_bash "chmod 0600 #{single_qoute(private_key_filename)} ; " +
                   "chmod 0777 #{single_qoute(@git_ssh_filename)}",
                   "Set permissions on the temporary key and the git_ssh files"
+  end
+
+  def private_key_file_content
+    @project_configuration.private_key
+  end
+
+  def git_ssh_file_content private_key_filename
+    content = single_qoute(Setting.plugin_redmine_febee['cmd_ssh'])
+    content += " -i #{single_qoute(private_key_filename)}"
+    content += " $@"
   end
 
   def run_with_git(cmd, description)

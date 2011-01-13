@@ -53,7 +53,7 @@ def load_from_configured_file file_test_config_key
   File.open(File.join(FEBEE_PLUGIN_PATH, filename), 'r') do |f|
     content = f.read
   end
-  content
+  content.gsub "\n", "\\n"
 end
 
 module SaveTestDescription
