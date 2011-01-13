@@ -13,7 +13,7 @@ class GitRepository
     begin
       @grit_repository = Grit::Repo.new(@workspace.path)
     rescue StandardError => e
-      logger.info "Uninitialized git repository in workspace: '#{@workspace.path}': #{e}"
+      logger.debug "Uninitialized git repository in workspace: '#{@workspace.path}': #{e}"
     end
     unless @project_configuration.private_key.blank?
       init_private_key 
@@ -21,8 +21,6 @@ class GitRepository
   end
 
   def repository_initialized?
-logger.info "grit: #{@grit_repository}"
-logger.info "grit: #{@grit_repository.heads.inspect}" if @grit_repository
     @repository_initialized ||= @grit_repository.heads.count > 0 if @grit_repository
   end
 

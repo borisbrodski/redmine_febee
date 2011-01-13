@@ -64,9 +64,9 @@ module SaveTestDescription
     if block_given?
       define_method(test_name) do
         @description = name
-        send "#{test_name}_do"
+        send "do_#{test_name}"
       end
-      define_method("#{test_name}_do", &block)
+      define_method("do_#{test_name}", &block)
     else
       define_method(test_name) do
         flunk "No implementation provided for #{name}"
