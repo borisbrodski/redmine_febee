@@ -1,4 +1,9 @@
 module FebeeUtils
+  class FebeeError < StandardError
+    def message
+      "#{to_s}"
+    end
+  end
 
   # Remove
   def remove_non_root_directory path

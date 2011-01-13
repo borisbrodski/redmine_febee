@@ -3,8 +3,9 @@ require 'open4'
 
 module ExecHelper
   include Redmine::I18n
-  
-  class ExecError < StandardError
+  include FebeeUtils
+
+  class ExecError < FebeeError
     attr :cmds
     attr :description
     attr :exit_code
