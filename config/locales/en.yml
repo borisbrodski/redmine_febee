@@ -5,20 +5,29 @@ en:
   project_module_febee: FeBEE
   field_git_url: Git url
   hint_git_url: Url to git or gerrit server
-  field_workspace: Workspace path
-  hint_workspace: <b>WARNING:</b> all content of the directory will be removed!
+  field_is_gerrit: Enable gerrit
+  hint_is_gerrit: Check it, if the git repository hosted by gerrit and review support should be enabled
+  field_workspace_path: Workspace path
+  hint_workspace_path: <b>WARNING:</b> all content of the directory will be removed!
   febee_not_initialized: not initialized
   field_private_key: Private key
   hint_private_key: Decrypted private key to access git repository from redmine
   field_public_key: Public key
   hint_public_key: Corresponding public key to access git repository from redmine
+  field_feature_branch_folder_name: Feature branch folder
+  hint_feature_branch_folder_name: The name of the branch folder for all opened feature branches
+  field_closed_feature_branch_folder_name: Closed branch folder
+  hint_closed_feature_branch_folder_name: The name of the branch folder for all closed feature branches
+  field_main_branch_folder_name: Main branch folder
+  hint_main_branch_folder_name: The name of the branch folder for main branches, like master
   field_git_user_name: Git user name
   hint_git_user_name: User name to use for git user.name config variable
   field_git_email_name: Git e-mail address
   hint_git_email: E-mail address to use for git user.email config variable
   button_initialize: Initialize
   button_reinitialize: Re-initialize
-  
+
+# Global plugin configuration  
   febee_full_path_to_bash: Full path to bash
   febee_full_path_to_bash_hint: Full path to the bash-shell executable.
   febee_full_path_to_git: Full path to git

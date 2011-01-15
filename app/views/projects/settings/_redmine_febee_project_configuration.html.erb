@@ -14,7 +14,10 @@
 <p><%= f.text_field :git_url, :size => size, :required => true %><br />
   <em><%=l :hint_git_url %></em></p>
 </p>
-<p><%= f.text_field :workspace, :size => size, :required => true %>
+<p><%= f.check_box :is_gerrit %><br />
+  <em><%=l :hint_is_gerrit %></em></p>
+</p>
+<p><%= f.text_field :workspace_path, :size => size, :required => true %>
   <% if @initialized %>
     <%= submit_to_remote :reinitialize, l(:button_reinitialize),
       :url => { :controller => 'febee_project_configurations', :action => 'reinitialize_git_repository', :id => @project} %>
@@ -24,7 +27,7 @@
     (<b><%= l :febee_not_initialized %></b>)
   <% end %>
   <br />
-  <em><%=l :hint_workspace %></em></p>
+  <em><%=l :hint_workspace_path %></em></p>
 <p><%= f.text_field :git_user_name, :size => size, :required => true %><br />
   <em><%=l :hint_git_user_name %></em></p>
 </p>
@@ -33,8 +36,14 @@
 </p>
 <p><%= f.text_area :private_key, :cols => area_cols, :rows => area_rows %><br />
   <em><%=l :hint_private_key %></em></p>
-<p><%= f.text_area :public_key, :cols => area_cols, :rows => area_rows %><br />
-  <em><%=l :hint_public_key %></em></p>
+<p><%= f.text_field :feature_branch_folder_name, :size => size %><br />
+  <em><%=l :hint_feature_branch_folder_name %></em></p>
+</p>
+<p><%= f.text_field :closed_feature_branch_folder_name, :size => size %><br />
+  <em><%=l :hint_closed_feature_branch_folder_name %></em></p>
+</p>
+<p><%= f.text_field :main_branch_folder_name, :size => size %><br />
+  <em><%=l :hint_main_branch_folder_name %></em></p>
 </p>
 </div>
 

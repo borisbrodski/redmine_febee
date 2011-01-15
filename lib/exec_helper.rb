@@ -6,6 +6,8 @@ module ExecHelper
   include FebeeUtils
 
   class ExecError < FebeeError
+    include FebeeUtils
+
     attr :cmds
     attr :description
     attr :exit_code

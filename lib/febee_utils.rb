@@ -35,4 +35,8 @@ module FebeeUtils
       yield *args
     end
   end
+  # TODO remove this
+  def logger
+    RAILS_DEFAULT_LOGGER
+  end
 end

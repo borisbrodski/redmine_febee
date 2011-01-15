@@ -9,8 +9,9 @@ class FebeeProjectConfigurationsController < ApplicationController
   
   def update
     load_project_and_project_configuration
+
     @febee_project_configuration.attributes = params[:febee_project_configuration]
-    @febee_project_configuration.save#{std_out}
+    @febee_project_configuration.save
     render(:update) {|page| page.replace_html "tab-content-febee", :partial => 'projects/settings/redmine_febee_project_configuration'}
   end
 
@@ -20,14 +21,14 @@ class FebeeProjectConfigurationsController < ApplicationController
     if @initialized then
       flash.now[:error] = l :repository_already_initialized
     else
-      @febee_project_configuration.access_git(true) do |git|
-        error_message = git.initialize_repository
-        if error_message
-          flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
-        else
+      begin
+        @febee_project_configuration.access_git do |git|
+          git.initialize_repository
           flash.now[:notice] = l :initialized_successfully
           @initialized = true
         end
+      rescue FebeeError => e
+        flash.now[:error] = ERB::Util::h(e.message).gsub /(\r)?\n/, '<br/>'
       end
     end
     render(:update) {|page| page.replace_html "tab-content-febee", :partial => 'projects/settings/redmine_febee_project_configuration'}
@@ -38,7 +39,7 @@ class FebeeProjectConfigurationsController < ApplicationController
     unless @initialized then
       flash.now[:error] = l :repository_not_initialized 
     else
-      @febee_project_configuration.access_git true do |git|
+      @febee_project_configuration.access_git do |git|
         error_message = git.reinitialize_repository
         if error_message
           flash.now[:error] = ERB::Util::h(error_message).gsub /(\r)?\n/, '<br/>'
