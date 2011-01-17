@@ -2,6 +2,9 @@ require 'grit'
 #require 'tempfile'
 
 class GitRepository
+
+  REMOTE_NAME='origin'
+
   attr :local_path
 
   include ExecHelper
@@ -42,9 +45,8 @@ class GitRepository
   def remote_branches
     return @remote_branches if @remove_branches
 
-    # TODO use grit here
     output = run_with_git "branch -r", "Retrieving remote branches"
-    @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+origin\//, ''; line !~ /->/ }
+    @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+#{REMOTE_NAME}\//, ''; line !~ /->/ }
   end
 
   def create_feature_branch base_branch_name, issue_id
@@ -66,12 +68,12 @@ class GitRepository
   end
 
   def create_branch new_branch_name, base_branch_name
-    run_with_git "push origin refs/remotes/origin/#{base_branch_name}:refs/heads/#{new_branch_name}",
+    run_with_git "push #{REMOTE_NAME} refs/remotes/#{REMOTE_NAME}/#{base_branch_name}:refs/heads/#{new_branch_name}",
                  "Create feature branch '#{new_branch_name}' based on '#{base_branch_name}'"
   end
 
   def fetch_from_server
-    run_with_git "fetch --prune origin +refs/heads/*:refs/remotes/origin/*", "Fetching from the git repository"
+    run_with_git "fetch --prune #{REMOTE_NAME} +refs/heads/*:refs/remotes/#{REMOTE_NAME}/*", "Fetching from the git repository"
   end
 
 private
