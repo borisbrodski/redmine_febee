@@ -115,6 +115,16 @@ class GitRepositoryTest < ActiveSupport::TestCase
     end
   end
 
+  test "Git remote branches" do
+    for_all_project_configurations do |project_configuration|
+      setup_test project_configuration
+      branches = project_configuration.febee_workspace.git_repository.remote_branches
+      assert branches.count >= 2, "Count of remote branches less that 2. Branches: #{branches}"
+      assert branches.index("master"), "master branch wasn't found within the list of remote branches: #{branches}"
+      assert branches.index("release-1.x"), "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+    end
+  end
+
   test "Generate filenames from private key" do
     project_configuration = FebeeProjectConfiguration.first(:conditions => 'private_key is not null')
     return unless project_configuration
