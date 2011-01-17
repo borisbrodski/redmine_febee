@@ -3,4 +3,5 @@ test_configuration:
   cmd_ssh: /usr/bin/ssh
   cmd_bash: /bin/bash
 
-  gerrit_git_url: ssh://localhost:29418/Project1.git
+  gerrit_git_url: ssh://FebeeTestUser@localhost:29418/FebeeTestProject.git
+  gerrit_private_key_file: config/test_redmine_private_key/redmine_rsa
