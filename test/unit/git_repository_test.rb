@@ -29,10 +29,11 @@ class GitRepositoryTest < ActiveSupport::TestCase
     @git_repository = GitRepository.new project_configuration.febee_workspace
   end
 
-
   def initialize_git_repo project_configuration, leave_workspace_empty
     ensure_empty_directory(project_configuration.febee_workspace.path)
 
+    main_branch_folder_path = project_configuration.main_branch_folder_path
+    
     tmp_repo_path = "#{redmine_tmp_path}/git_repository_"
     tmp_repo_path += project_configuration.is_gerrit?.to_s
     ensure_empty_directory(tmp_repo_path)
@@ -59,7 +60,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
     FileUtils.touch "#{tmp_repo_path}/file4.txt"
     run_git_cmd "Stage new files", tmp_repo, "add ."
     run_git_cmd "Commit", tmp_repo, "commit -m 'Another two new files'"
-    run_git_cmd "Push", tmp_repo, "push -f origin master:refs/heads/master"
+    run_git_cmd "Push", tmp_repo, "push -f origin master:refs/heads/#{main_branch_folder_path}master"
 
     # Create a release-branch
     run_git_cmd "Create local branch", tmp_repo, "checkout -b release-1.x HEAD^"
@@ -67,7 +68,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
     FileUtils.touch "#{tmp_repo_path}/file6-release-1.x.txt"
     run_git_cmd "Stage new files", tmp_repo, "add ."
     run_git_cmd "Commit", tmp_repo, "commit -m 'Release-1.x: Yet another two new files'"
-    run_git_cmd "Push", tmp_repo, "push -f origin HEAD:refs/heads/release-1.x"
+    run_git_cmd "Push", tmp_repo, "push -f origin HEAD:refs/heads/#{main_branch_folder_path}release-1.x"
     @@git_repo_initialized[project_configuration.id] = true
 
     unless leave_workspace_empty
@@ -119,9 +120,14 @@ class GitRepositoryTest < ActiveSupport::TestCase
     for_all_project_configurations do |project_configuration|
       setup_test project_configuration
       branches = project_configuration.febee_workspace.git_repository.remote_branches
+      main_branch_folder_path = project_configuration.main_branch_folder_path
       assert branches.count >= 2, "Count of remote branches less that 2. Branches: #{branches}"
-      assert branches.index("master"), "master branch wasn't found within the list of remote branches: #{branches}"
-      assert branches.index("release-1.x"), "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+      assert branches.index("#{main_branch_folder_path}master"),
+        "master branch wasn't found within the list of remote branches: #{branches}"
+      assert branches.index("#{main_branch_folder_path}release-1.x"),
+        "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+      branches2 = project_configuration.febee_workspace.git_repository.remote_branches
+      assert_equal branches, branches2, "Second call to the GitRepository.remote_branches returns different results"
     end
   end
 

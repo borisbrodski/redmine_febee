@@ -31,6 +31,11 @@ class FebeeProjectConfiguration < ActiveRecord::Base
     febee_workspace.path = path
   end
 
+  # Return '' or main branch folder name followed by the slash
+  def main_branch_folder_path
+    "#{main_branch_folder_name}#{'/' unless main_branch_folder_name.blank?}"
+  end
+
 private
   def git_repository
     @git_repository ||= GitRepository.new(febee_workspace)

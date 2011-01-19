@@ -41,7 +41,7 @@ class GitRepository
   def base_branches
     @base_branches ||= branches.select{|name| name !~ /\//}
   end
-  
+
   def remote_branches
     return @remote_branches if @remove_branches
 
