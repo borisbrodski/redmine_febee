@@ -116,7 +116,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
     end
   end
 
-  test "Git remote branches" do
+  test "Git get remote branches" do
     for_all_project_configurations do |project_configuration|
       setup_test project_configuration
       branches = project_configuration.febee_workspace.git_repository.remote_branches
@@ -128,6 +128,62 @@ class GitRepositoryTest < ActiveSupport::TestCase
         "release-1.x branch wasn't found within the list of remote branches: #{branches}"
       branches2 = project_configuration.febee_workspace.git_repository.remote_branches
       assert_equal branches, branches2, "Second call to the GitRepository.remote_branches returns different results"
+    end
+  end
+
+  test "Git get main branches" do
+    for_all_project_configurations do |project_configuration|
+      setup_test project_configuration
+      branches = project_configuration.febee_workspace.git_repository.main_branches
+      assert_equal 2, branches.count, "2 main branches are expected: master & release-1.x. Branches: #{branches}"
+      assert branches.index("master"),
+        "master branch wasn't found within the list of remote branches: #{branches}"
+      assert branches.index("release-1.x"),
+        "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+      branches2 = project_configuration.febee_workspace.git_repository.main_branches
+      assert_equal branches, branches2, "Second call to the GitRepository.remote_branches returns different results"
+    end
+  end
+
+  test "Git create feature branch" do
+    for_all_project_configurations do |project_configuration|
+      setup_test project_configuration
+      git = project_configuration.febee_workspace.git_repository
+      branches = git.remote_branches
+      git.main_branches.each do |main_branch|
+        issue_id = rand(10000)
+        name = git.create_feature_branch(main_branch, issue_id)
+        branches_after_create = git.remote_branches
+        new_branches = branches_after_create - branches
+
+        assert !new_branches.empty?, "No branch was created"
+
+        assert_equal 1, new_branches.count,
+          "It was more, that just one new branch created. Created branches: #{new_branches.inspect}"
+
+        new_branch = new_branches[0]
+
+        assert new_branch.start_with?(project_configuration.feature_branch_folder_path),
+          "The new feature branch was created within wrong folder. Expected folder: " + 
+          "#{project_configuration.feature_branch_folder_path}. New branch: #{new_branch}"
+
+        assert new_branch.index(issue_id.to_s),
+          "The new branch name doesn't contains the issue id. Issue id: #{issue_id}, new branch: #{new_branch}"
+
+        assert (branches - branches_after_create).empty?,
+          "During creation of a new feature branch some other branch was deleted."
+
+        branches = branches_after_create
+        name2 = git.create_feature_branch(main_branch, issue_id)
+        number2 = name2[/_([0-9]+)$/, 1].to_i
+        if number2 == 1
+          assert_equal "#{name}_1", name2, "Wrong branch name. First branch: '#{name}', second branch: '#{name2}'"
+        else
+          number = name[/_([0-9]+)$/, 1].to_i
+          assert_equal number + 1, number2, "Wrong branch name. First branch: '#{name}', second branch: '#{name2}'"
+        end
+        branches = branches << name2
+      end
     end
   end
 

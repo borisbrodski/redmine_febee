@@ -36,6 +36,16 @@ class FebeeProjectConfiguration < ActiveRecord::Base
     "#{main_branch_folder_name}#{'/' unless main_branch_folder_name.blank?}"
   end
 
+  # Return '' or feature branch folder name followed by the slash
+  def feature_branch_folder_path
+    "#{feature_branch_folder_name}#{'/' unless feature_branch_folder_name.blank?}"
+  end
+
+  # Return '' or closed feature branch folder name followed by the slash
+  def closed_feature_branch_folder_path
+    "#{closed_feature_branch_folder_name}#{'/' unless closed_feature_branch_folder_name.blank?}"
+  end
+
 private
   def git_repository
     @git_repository ||= GitRepository.new(febee_workspace)

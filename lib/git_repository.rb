@@ -38,45 +38,69 @@ class GitRepository
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
   end
 
-  def base_branches
-    @base_branches ||= branches.select{|name| name !~ /\//}
+  def main_branches
+    return @main_branches if @main_branches && @remote_branches
+    
+    main_branch_folder_path = @project_configuration.main_branch_folder_path
+    if main_branch_folder_path.blank?
+      @main_branches = remote_branches.select{|name| name !~ /\//}
+    else
+      @main_branches = remote_branches.select{|name| name.start_with?(main_branch_folder_path)}.
+        collect{|name| name[main_branch_folder_path.length..-1]}
+    end
+  end
+
+  def feature_branches
+    return @feature_branches if @feature_branches && @remote_branches
+
+    feature_branch_folder_path = @project_configuration.feature_branch_folder_path
+    if feature_branch_folder_path.blank?
+      @feature_branches = remote_branches.select{|name| name !~ /\//}
+    else
+      @feature_branches = remote_branches.select{|name| name.start_with?(feature_branch_folder_path)}.
+        collect{|name| name[feature_branch_folder_path.length..-1]}
+    end
   end
 
   def remote_branches
     return @remote_branches if @remove_branches
 
-    output = run_with_git "branch -r", "Retrieving remote branches"
+    output = run_with_git("branch -r", "Retrieving remote branches")
     @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+#{REMOTE_NAME}\//, ''; line !~ /->/ }
+    @main_branches = nil
+    @feature_branches = nil
+    @remote_branches
   end
 
-  def create_feature_branch base_branch_name, issue_id
-    return nil unless base_branches.include? base_branch_name
-    name = unique_feature_branch_name "issue_#{issue_id}", base_branch_name
-    create_branch name, base_branch_name
+  def create_feature_branch main_branch_name, issue_id
+    return nil unless main_branches.include? main_branch_name
+    name = unique_feature_branch_name "issue_#{issue_id}", main_branch_name
+
+    main_branch_folder_path = @project_configuration.main_branch_folder_path
+    feature_branch_folder_path = @project_configuration.feature_branch_folder_path
+    run_with_git "push #{REMOTE_NAME} refs/remotes/#{REMOTE_NAME}/#{main_branch_folder_path}#{main_branch_name}:refs/heads/#{feature_branch_folder_path}#{name}",
+                 "Create feature branch '#{name}' based on '#{main_branch_name}'"
+    fetch_from_server
     name
-  end
-
-  def unique_feature_branch_name feature_branch_name, base_branch_name
-    counter = 0
-    begin
-      name = "feature/#{feature_branch_name}"
-      name << "_#{base_branch_name}" unless base_branch_name == 'master'
-      name << "_#{counter}" unless counter == 0
-      counter += 1
-    end while branches.include? name
-    name
-  end
-
-  def create_branch new_branch_name, base_branch_name
-    run_with_git "push #{REMOTE_NAME} refs/remotes/#{REMOTE_NAME}/#{base_branch_name}:refs/heads/#{new_branch_name}",
-                 "Create feature branch '#{new_branch_name}' based on '#{base_branch_name}'"
   end
 
   def fetch_from_server
     run_with_git "fetch --prune #{REMOTE_NAME} +refs/heads/*:refs/remotes/#{REMOTE_NAME}/*", "Fetching from the git repository"
+    @remote_branches = nil
   end
 
 private
+
+  def unique_feature_branch_name(issue_name, main_branch_name)
+    counter = 0
+    begin
+      name = issue_name
+      name << "_#{main_branch_name}" unless main_branch_name == "#{@project_configuration.main_branch_folder_path}master"
+      name << "_#{counter}" unless counter == 0
+      counter += 1
+    end while feature_branches.include? name
+    name
+  end
 
   def init_private_key
     @git_ssh_filename, private_key_filename, complete_filename = private_key_filenames
