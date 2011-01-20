@@ -94,8 +94,8 @@ private
   def unique_feature_branch_name(issue_name, main_branch_name)
     counter = 0
     begin
-      name = issue_name
-      name << "_#{main_branch_name}" unless main_branch_name == "#{@project_configuration.main_branch_folder_path}master"
+      name = issue_name.dup
+      name << "_#{main_branch_name}" unless main_branch_name == "master"
       name << "_#{counter}" unless counter == 0
       counter += 1
     end while feature_branches.include? name

@@ -170,8 +170,14 @@ class GitRepositoryTest < ActiveSupport::TestCase
         assert new_branch.index(issue_id.to_s),
           "The new branch name doesn't contains the issue id. Issue id: #{issue_id}, new branch: #{new_branch}"
 
+        assert_equal "#{project_configuration.feature_branch_folder_path}#{name}", new_branch,
+          "Returned new branch name doesn't match new created branch name. Returned: #{name}"
+
         assert (branches - branches_after_create).empty?,
           "During creation of a new feature branch some other branch was deleted."
+
+        assert !name.index("master"),
+          "The main branch name 'master' shouldn't appear in the feature branch name."
 
         branches = branches_after_create
         name2 = git.create_feature_branch(main_branch, issue_id)
@@ -182,7 +188,7 @@ class GitRepositoryTest < ActiveSupport::TestCase
           number = name[/_([0-9]+)$/, 1].to_i
           assert_equal number + 1, number2, "Wrong branch name. First branch: '#{name}', second branch: '#{name2}'"
         end
-        branches = branches << name2
+        branches = git.remote_branches #branches << "#{project_configuration.feature_branch_folder_path}name2"
       end
     end
   end
