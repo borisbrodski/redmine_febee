@@ -18,9 +18,9 @@ module RedmineFebee
 
       def febee_load
         if User.current.allowed_to? :create_feature_branch, @project
-          schedule_git_task do |git|
-            @base_branches = git.base_branches
-          end unless @base_branches
+          @project.febee_project_configuration.access_git do |git|
+            @main_branch_names = git.main_branches
+          end unless @main_branch_names
         end
         if User.current.allowed_to? :view_feature_branches, @project
           @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
