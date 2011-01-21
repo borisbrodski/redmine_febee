@@ -92,9 +92,10 @@ class GitRepositoryTest < ActiveSupport::TestCase
     for_all_project_configurations do |project_configuration|
       setup_test project_configuration, :empty_workspace => true
       assert !@git_repository.repository_initialized?, "Empty directory detected as a initialized repository"
+      path = project_configuration.febee_workspace.path
+      FileUtils.touch("#{path}/xxx.txt")
       @git_repository.initialize_repository
       @git_repository = GitRepository.new project_configuration.febee_workspace
-      path = project_configuration.febee_workspace.path
       assert File.exists?("#{path}/.git"), "Workspace git repository doesn't get initialized"
       assert File.exists?("#{path}/file1.txt")
       assert File.exists?("#{path}/file2.txt")

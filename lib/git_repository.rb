@@ -28,12 +28,11 @@ class GitRepository
   end
 
   def reinitialize_repository
-    local_path = @workspace.path
-    empty_non_root_directory local_path
     initialize_repository
   end
   
   def initialize_repository
+    empty_non_root_directory(@workspace.path)
     url = @project_configuration.git_url
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
   end
