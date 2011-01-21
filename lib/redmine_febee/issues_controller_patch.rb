@@ -18,9 +18,9 @@ module RedmineFebee
 
       def febee_load
         if User.current.allowed_to? :create_feature_branch, @project
-          @project.febee_project_configuration.access_git do |git|
+          with_git do |git|
             @main_branch_names = git.main_branches
-          end unless @main_branch_names
+          end || (redirect_to :action => :show ; return)
         end
         if User.current.allowed_to? :view_feature_branches, @project
           @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
@@ -28,19 +28,18 @@ module RedmineFebee
       end
 
       def febee_edit
+        return unless @main_branch_names
         if params[:create_feature_branch] then
-          schedule_git_task do |git|
-            base_branch_name = params[:base_branch_name]
-            if @base_branches.include? base_branch_name
-              new_branch_name = git.create_feature_branch base_branch_name, params[:id]
-              
-              create_feature_branch new_branch_name, base_branch_name, 'xxx TODO'
+          with_git do |git|
+            main_branch_name = params[:main_branch_name]
+            if @main_branch_names.include? main_branch_name
+              new_branch_name = git.create_feature_branch main_branch_name, params[:id]
+              create_feature_branch new_branch_name, main_branch_name, 'xxx TODO'
               flash[:notice] = "Feature branch created: #{new_branch_name}"
             else
-              flash[:error] = "Base branch not found #{base_branch_name}"
+              flash[:error] = "Main branch not found #{main_branch_name}"
             end
           end
-          execute_git_tasks
           redirect_to :action => :show
         end
       end
@@ -62,7 +61,6 @@ module RedmineFebee
       receiver.class_eval do
         before_filter :febee_load, :only => [:show, :edit, :update]
         before_filter :febee_edit, :only => [:update, :edit]
-        before_filter :execute_git_tasks, :only => [:show, :edit, :update]
         
         alias_method_chain :show, :febee
         alias_method_chain :update, :febee
