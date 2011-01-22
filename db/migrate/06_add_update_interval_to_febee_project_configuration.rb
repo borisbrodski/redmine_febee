@@ -7,7 +7,7 @@ class AddUpdateIntervalToFebeeProjectConfiguration < ActiveRecord::Migration
   
   def self.down
     change_table :febee_project_configurations do |t|
-      r.remove :update_interval
+      t.remove :update_interval
     end
   end
 end

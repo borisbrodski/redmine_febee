@@ -9,9 +9,9 @@ class AddBranchFolderConfigurationToFebeeProjectConfigurations < ActiveRecord::M
   
   def self.down
     change_table :febee_project_configurations do |t|
-      r.remove :feature_branch_folder_name
-      r.remove :closed_feature_branch_folder_name
-      r.remove :main_branch_folder_name
+      t.remove :feature_branch_folder_name
+      t.remove :closed_feature_branch_folder_name
+      t.remove :main_branch_folder_name
     end
   end
 end

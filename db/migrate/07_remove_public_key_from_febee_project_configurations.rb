@@ -7,7 +7,7 @@ class RemovePublicKeyFromFebeeProjectConfigurations < ActiveRecord::Migration
   
   def self.down
     change_table :febee_project_configurations do |t|
-      r.text :public_key
+      t.text :public_key
     end
   end
 end
