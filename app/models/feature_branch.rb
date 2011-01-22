@@ -16,5 +16,9 @@ class FeatureBranch < ActiveRecord::Base
     self.created_user = User.current
   end
 
+  def checkout_cmd
+    pc = issue.project.febee_project_configuration
+    "git checkout '#{pc.feature_branch_folder_path}#{name}'"
+  end
 end
 

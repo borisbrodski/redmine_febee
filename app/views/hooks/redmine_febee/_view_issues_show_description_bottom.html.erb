@@ -2,6 +2,13 @@
 <hr>
 <p><strong><%= l :section_feature_branches %></strong></p>
   <%- @feature_branches.each do |feature_branch| -%>
-<p><%= feature_branch.name%></p>
+<p><strong><%= feature_branch.name %></strong>
+   based on
+   <strong><%= feature_branch.based_on_name %></strong>
+   <%= text_field_tag 'cmd', feature_branch.checkout_cmd, :readonly => 'true' %>
+   <br>&nbsp;&nbsp;
+   <%= authoring(feature_branch.created_on, feature_branch.created_user) if feature_branch.created_on %>
+</p>
   <%- end -%>
 <%- end -%>
+
