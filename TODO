@@ -4,3 +4,4 @@
 - Add issue like info 'Updated by Redmine Admin 12 days ago' to feature branch view
 - Add default values for the branch folder names (feature/old_feature)
 - Customize building feature branch name from issue-id. Current format: "issue_#{issue_id}"
+- Add activity support to the feature branch (see lib/redmine/activity.rb)
