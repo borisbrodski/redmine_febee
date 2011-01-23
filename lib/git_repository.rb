@@ -1,5 +1,4 @@
 require 'grit'
-#require 'tempfile'
 
 class GitRepository
 
@@ -37,9 +36,14 @@ class GitRepository
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
   end
 
+  def commit_count(feature_branch, main_branch)
+    log = run_with_git "log --oneline '#{@project_configuration.feature_branch_folder_path}#{feature_branch}...#{@project_configuration.main_branch_folder_path}main_branch'"
+    log.split("\n").count
+  end
+
   def main_branches
     return @main_branches if @main_branches && @remote_branches
-    
+
     main_branch_folder_path = @project_configuration.main_branch_folder_path
     if main_branch_folder_path.blank?
       @main_branches = remote_branches.select{|name| name !~ /\//}
@@ -79,13 +83,12 @@ class GitRepository
     feature_branch_folder_path = @project_configuration.feature_branch_folder_path
     run_with_git "push #{REMOTE_NAME} refs/remotes/#{REMOTE_NAME}/#{main_branch_folder_path}#{main_branch_name}:refs/heads/#{feature_branch_folder_path}#{name}",
                  "Create feature branch '#{name}' based on '#{main_branch_name}'"
-    fetch_from_server
+    @remote_branches = nil
     name
   end
 
   def fetch_from_server
     run_with_git "fetch --prune #{REMOTE_NAME} +refs/heads/*:refs/remotes/#{REMOTE_NAME}/*", "Fetching from the git repository"
-    @remote_branches = nil
   end
 
 private
