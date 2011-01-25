@@ -11,6 +11,7 @@ It allows:
 Installation:
 - require gems:
   - grit
+  - open4
 
 = Testing
 
