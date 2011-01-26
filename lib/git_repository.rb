@@ -36,9 +36,12 @@ class GitRepository
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
   end
 
-  def commit_count(feature_branch, main_branch)
-    log = run_with_git "log --oneline '#{@project_configuration.feature_branch_folder_path}#{feature_branch}...#{@project_configuration.main_branch_folder_path}main_branch'"
-    log.split("\n").count
+  def feature_branch_commit_ids(feature_branch, main_branch)
+    main = "#{@project_configuration.main_branch_folder_path}#{main_branch}"
+    feature = "#{@project_configuration.feature_branch_folder_path}#{feature_branch}"
+    log = run_with_git "log --format=format:%H '#{REMOTE_NAME}/#{main}..#{REMOTE_NAME}/#{feature}'",
+      "Retrieve commits ids on the feature branch"
+    log.split("\n")
   end
 
   def main_branches
@@ -88,6 +91,7 @@ class GitRepository
   end
 
   def fetch_from_server
+    @remote_branches = nil
     run_with_git "fetch --prune #{REMOTE_NAME} +refs/heads/*:refs/remotes/#{REMOTE_NAME}/*", "Fetching from the git repository"
   end
 

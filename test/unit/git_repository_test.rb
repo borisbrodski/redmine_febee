@@ -29,14 +29,11 @@ class GitRepositoryTest < ActiveSupport::TestCase
     @git_repository = GitRepository.new project_configuration.febee_workspace
   end
 
-  def initialize_git_repo project_configuration, leave_workspace_empty
-    ensure_empty_directory(project_configuration.febee_workspace.path)
-
-    main_branch_folder_path = project_configuration.main_branch_folder_path
+  def tmp_repository(project_configuration)
+    @tmp_repo_cache ||= {}
+    return @tmp_repo_cache[project_configuration] if @tmp_repo_cache[project_configuration]
     
-    tmp_repo_path = "#{redmine_tmp_path}/git_repository_"
-    tmp_repo_path += project_configuration.is_gerrit?.to_s
-    ensure_empty_directory(tmp_repo_path)
+    tmp_repo_path = "#{redmine_tmp_path}/git_repository_#{project_configuration.is_gerrit?.to_s}"
 
     tmp_workspace = FebeeWorkspace.new(:path => tmp_repo_path)
 
@@ -46,12 +43,30 @@ class GitRepositoryTest < ActiveSupport::TestCase
       :febee_workspace => tmp_workspace
     )
     tmp_workspace.febee_project_configuration = tmp_project_configuration
-    tmp_repo = GitRepository.new(tmp_workspace)
+    [GitRepository.new(tmp_workspace), tmp_repo_path]
+  end
+
+  def initialize_git_repo project_configuration, leave_workspace_empty
+    ensure_empty_directory(project_configuration.febee_workspace.path)
+
+    main_branch_folder_path = project_configuration.main_branch_folder_path
+    
+    tmp_repo, tmp_repo_path = tmp_repository(project_configuration)
+    ensure_empty_directory(tmp_repo_path)
  
     run_git_cmd "Init tmp git repo", tmp_repo, "init"
     run_git_cmd "Add remote", tmp_repo, "remote add origin #{single_qoute(project_configuration.git_url)}"
     run_git_cmd "Set git name", tmp_repo, "config user.name #{project_configuration.git_user_name}"
     run_git_cmd "Set git name", tmp_repo, "config user.email #{project_configuration.git_email_name}"
+
+    # Remove old branches in case gerrit git repository
+    run_git_cmd "Stage new files", tmp_repo, "fetch origin"
+    branches_to_delete = (run_git_cmd "Stage new files", tmp_repo, "branch -r").split("\n")
+    branches_to_delete.each do |branch|
+      branch = branch[/\/(.*)/,1]
+      run_git_cmd "Delete branch", tmp_repo, "push origin ':refs/heads/#{branch}'" unless branch == "master"
+    end
+
     FileUtils.touch "#{tmp_repo_path}/file1.txt"
     FileUtils.touch "#{tmp_repo_path}/file2.txt"
     run_git_cmd "Stage new files", tmp_repo, "add ."
@@ -122,11 +137,11 @@ class GitRepositoryTest < ActiveSupport::TestCase
       setup_test project_configuration
       branches = project_configuration.febee_workspace.git_repository.remote_branches
       main_branch_folder_path = project_configuration.main_branch_folder_path
-      assert branches.count >= 2, "Count of remote branches less that 2. Branches: #{branches}"
+      assert branches.count >= 2, "Count of remote branches less that 2. Branches: #{branches.join(', ')}"
       assert branches.index("#{main_branch_folder_path}master"),
-        "master branch wasn't found within the list of remote branches: #{branches}"
+        "master branch wasn't found within the list of remote branches: #{branches}.join(', ')"
       assert branches.index("#{main_branch_folder_path}release-1.x"),
-        "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+        "release-1.x branch wasn't found within the list of remote branches: #{branches}.join(', ')"
       branches2 = project_configuration.febee_workspace.git_repository.remote_branches
       assert_equal branches, branches2, "Second call to the GitRepository.remote_branches returns different results"
     end
@@ -136,11 +151,11 @@ class GitRepositoryTest < ActiveSupport::TestCase
     for_all_project_configurations do |project_configuration|
       setup_test project_configuration
       branches = project_configuration.febee_workspace.git_repository.main_branches
-      assert_equal 2, branches.count, "2 main branches are expected: master & release-1.x. Branches: #{branches}"
+      assert_equal 2, branches.count, "2 main branches are expected: master & release-1.x. Branches: #{branches.join(', ')}"
       assert branches.index("master"),
-        "master branch wasn't found within the list of remote branches: #{branches}"
+        "master branch wasn't found within the list of remote branches: #{branches.join(', ')}"
       assert branches.index("release-1.x"),
-        "release-1.x branch wasn't found within the list of remote branches: #{branches}"
+        "release-1.x branch wasn't found within the list of remote branches: #{branches.join(', ')}"
       branches2 = project_configuration.febee_workspace.git_repository.main_branches
       assert_equal branches, branches2, "Second call to the GitRepository.remote_branches returns different results"
     end
@@ -190,6 +205,42 @@ class GitRepositoryTest < ActiveSupport::TestCase
           assert_equal number + 1, number2, "Wrong branch name. First branch: '#{name}', second branch: '#{name2}'"
         end
         branches = git.remote_branches #branches << "#{project_configuration.feature_branch_folder_path}name2"
+      end
+    end
+  end
+
+  test "Feature branch commit ids" do
+    [1,2,5].each do |commits_to_test|
+      for_all_project_configurations do |project_configuration|
+        setup_test project_configuration
+        feature_branch_folder_path = project_configuration.feature_branch_folder_path
+        git = project_configuration.febee_workspace.git_repository
+        git.remote_branches.each do |main_branch|
+          feature_branch_name = git.create_feature_branch("master", "321")
+          tmp_repo, tmp_repo_path = tmp_repository(project_configuration)
+          run_git_cmd "Fetch from repo", tmp_repo, "fetch"
+          run_git_cmd "Checkout a new feature branch", tmp_repo,
+            "checkout -b '#{feature_branch_name}' 'origin/#{feature_branch_folder_path}#{feature_branch_name}'"
+          expected_commit_ids = []
+          commits_to_test.times do |number|
+            FileUtils.touch "#{tmp_repo_path}/commit#{number}.txt"
+            run_git_cmd "Add new files", tmp_repo, "add ."
+            commit_message = run_git_cmd "Commit", tmp_repo, "commit -m 'Commit #{number}'"
+            commit = commit_message[/^\[.* ([a-zA-Z0-9]+)\]/, 1]
+            expected_commit_ids <<= commit
+            assert expected_commit_ids, "Can't extract commit id from commit message: '#{commit_message}'"
+          end
+          run_git_cmd "Push", tmp_repo,
+            "push origin #{feature_branch_name}:refs/heads/#{feature_branch_folder_path}#{feature_branch_name}"
+
+          git.fetch_from_server
+          commit_ids = git.feature_branch_commit_ids(feature_branch_name, "master").sort!
+          assert_equal commits_to_test, commit_ids.count, "Wrong number of commits on the feature branch"
+          expected_commit_ids.sort.each_with_index do |expected_id, index|
+            assert commit_ids[index].start_with? expected_id,
+              "Wrong commit id. Expected start '#{expected_id}', actual id: '#{commit_ids[index]}'"
+          end
+        end
       end
     end
   end
