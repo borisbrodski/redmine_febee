@@ -23,9 +23,12 @@ module ExecHelper
     end
     
     def message
-      message = "#{to_s}\nTask: #{description}\nCmd: \"#{cmds.join '" "'}\""
+      message = "#{to_s}"
+      message <<= "\n" unless message.blank?
+      message <<= "Task: #{description}\nCmd: \"#{cmds.join '" "'}\""
       message <<= "\nStandard output: '#{std_out}'" unless std_out.blank?
       message <<= "\nStandard error: '#{std_err}'" unless std_err.blank?
+      message
     end
   end
   
