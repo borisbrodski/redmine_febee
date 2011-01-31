@@ -47,4 +47,9 @@ en:
   issue_form_feature_branch_for: Feature branch for
   issue_form_create_branch: Create branch
 
+# model/feature_branch
+  main_branch_doesnt_exists: "Main branch doesn't exists"
+  closed_feature_branch_not_found: Closed feature branch not found in the git repository
+  feature_branch_not_found: "Branch not found in the git repository"
+
 

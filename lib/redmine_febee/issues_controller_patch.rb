@@ -17,13 +17,14 @@ module RedmineFebee
       end
 
       def febee_load
-        if User.current.allowed_to? :create_feature_branch, @project
-          with_git do |git|
-            @main_branch_names = git.main_branches
-          end || (redirect_to :action => :show ; return)
-        end
         if User.current.allowed_to? :view_feature_branches, @project
-          @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
+          with_git do |git|
+            if User.current.allowed_to? :create_feature_branch, @project
+              @main_branch_names = git.main_branches
+            end
+            @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
+            FeatureBranch.check_against_git_repository(@feature_branches, git)
+          end
         end
       end
 
@@ -46,7 +47,7 @@ module RedmineFebee
     end
 
     def create_feature_branch new_branch_name, base_branch_name, last_base_sha1
-      feature_branch = FeatureBranch.new(:issue_id => params[:id],
+      feature_branch = FeatureBranch.create(:issue_id => params[:id],
                                          :name => new_branch_name,
                                          :based_on_name => base_branch_name,
                                          :last_base_sha1 => last_base_sha1)

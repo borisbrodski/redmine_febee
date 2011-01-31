@@ -6,4 +6,5 @@ module RedmineFebee
     render_on :view_issues_show_description_bottom,
               :partial => 'hooks/redmine_febee/view_issues_show_description_bottom'
   end
-end
+end
+

@@ -56,6 +56,18 @@ class GitRepository
     end
   end
 
+  def closed_feature_branches
+    return @closed_feature_branches if @closed_feature_branches && @remote_branches
+
+    closed_feature_branch_folder_path = @project_configuration.closed_feature_branch_folder_path
+    if closed_feature_branch_folder_path.blank?
+      @closed_feature_branches = remote_branches.select{|name| name !~ /\//}
+    else
+      @closed_feature_branches = remote_branches.select{|name| name.start_with?(closed_feature_branch_folder_path)}.
+        collect{|name| name[closed_feature_branch_folder_path.length..-1]}
+    end
+  end
+
   def feature_branches
     return @feature_branches if @feature_branches && @remote_branches
 
