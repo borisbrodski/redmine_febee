@@ -5,6 +5,7 @@ class FebeeWorkspace < ActiveRecord::Base
 
   # Returns updated GitRepository object
   def git_repository
+    debugger
     @git_repository ||= GitRepository.new(self)
     if @git_repository.repository_initialized?
       PerRequestCache.fetch(:update_workspace) do

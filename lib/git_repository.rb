@@ -81,7 +81,7 @@ class GitRepository
   end
 
   def remote_branches
-    return @remote_branches if @remove_branches
+    return @remote_branches if @remote_branches
 
     output = run_with_git("branch -r", "Retrieving remote branches")
     @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+#{REMOTE_NAME}\//, ''; line !~ /->/ }

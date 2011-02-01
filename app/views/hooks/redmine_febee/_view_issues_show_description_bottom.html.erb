@@ -6,7 +6,7 @@
 <p><strong><%= feature_branch.name %></strong>
    based on
    <strong><%= feature_branch.based_on_name %></strong>
-   <%- "<b>PROBEMS<b>" if feature_branch.branch_problems -%>
+   <%- "<b>PROBLEMS<b>" unless feature_branch.branch_problems.empty? -%>
 <%-
     case feature_branch.status
       when FeatureBranch::STATUS_PENDING -%>

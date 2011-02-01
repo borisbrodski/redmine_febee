@@ -15,11 +15,11 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   end
 
   def access_git
-    yield git_repository
+   yield febee_workspace.git_repository
   end
 
   def workspace_initialized?
-    git_repository.repository_initialized? if valid?
+    febee_workspace.git_repository.repository_initialized? if valid?
   end
 
   def workspace_path
@@ -44,10 +44,5 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   # Return '' or closed feature branch folder name followed by the slash
   def closed_feature_branch_folder_path
     "#{closed_feature_branch_folder_name}#{'/' unless closed_feature_branch_folder_name.blank?}"
-  end
-
-private
-  def git_repository
-    @git_repository ||= GitRepository.new(febee_workspace)
   end
 end

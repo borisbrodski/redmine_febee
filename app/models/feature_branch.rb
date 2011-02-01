@@ -42,7 +42,7 @@ class FeatureBranch < ActiveRecord::Base
       end
     else
       if git_repository.feature_branches.include? name
-        @commits_count = git_repository.feature_branch_commit_ids(name, based_on_name)
+        @commits_count = git_repository.feature_branch_commit_ids(name, based_on_name).count
       else
         @branch_problems <<= l :feature_branch_not_found
       end
