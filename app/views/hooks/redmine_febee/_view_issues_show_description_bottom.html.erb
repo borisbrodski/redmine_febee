@@ -1,30 +1,36 @@
 <%- if @feature_branches -%>
-<hr>
-<p><strong><%= l :section_feature_branches %></strong></p>
-<%-
-  @feature_branches.each do |feature_branch| -%>
-<p><strong><%= feature_branch.name %></strong>
-   based on
-   <strong><%= feature_branch.based_on_name %></strong>
-   <%- "<b>PROBLEMS<b>" unless feature_branch.branch_problems.empty? -%>
-<%-
-    case feature_branch.status
-      when FeatureBranch::STATUS_PENDING -%>
-(<%= feature_branch.commits_count %> commits)
-<%-
-      when FeatureBranch::STATUS_MERGED -%>
-(<b>merged</b>)
-<%-
-      when FeatureBranch::STATUS_ABANDONED -%>
-(<b>abandoned</b>)
-<%- else -%>
-  (<i>unknown status: <%= feature_branch.status.class %>, <%= FeatureBranch::STATUS_PENDING.class %></i>)
+  <hr>
+  <p><strong><%= l :section_feature_branches %></strong></p>
+  <%- @feature_branches.each do |feature_branch| -%>
+    <p><strong><%= feature_branch.name %></strong>
+    based on <strong><%= feature_branch.based_on_name %></strong>
 
-<%- end %>
-   <%= text_field_tag 'cmd', feature_branch.checkout_cmd, :readonly => 'true' %>
-   <br>&nbsp;&nbsp;
-   <%= authoring(feature_branch.created_on, feature_branch.created_user) if feature_branch.created_on %>
-</p>
+    <%# COMMITS COUNT %>
+    <%- if feature_branch.commits_count -%>
+      (<%= l(:x_commits, :count => feature_branch.commits_count) %>)
+    <%- end %>
+
+    <%# CHECKOUT CMD %>
+    <%- if feature_branch.commits_count -%>
+      <%= text_field_tag 'cmd', feature_branch.checkout_cmd, :readonly => 'true', :size => 40 %>
+    <%- end -%>
+
+    <%# STATUS %>
+    &nbsp;&nbsp;[<strong title="<%= feature_branch.status_text_tooltip %>" >
+      <%= feature_branch.status_text %></strong>
+    ]
+
+    <%# AUTHORING %>
+    <br>&nbsp;&nbsp;
+    <%= authoring(feature_branch.created_on, feature_branch.created_user) if feature_branch.created_on %>
+    <%# PROBLEMS %>
+    <%- unless feature_branch.branch_problems.empty? -%>
+      <br>&nbsp;&nbsp;
+      <%- feature_branch.branch_problems.each do |problem| -%>
+        <strong>Problem:</strong> <%= problem %>
+      <%- end -%>
+    <%- end -%>
+    </p>
   <%- end -%>
 <%- end -%>
 

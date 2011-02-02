@@ -10,9 +10,10 @@ class FeatureBranch < ActiveRecord::Base
   attr_reader :branch_problems
 
   # Status
-  STATUS_PENDING = 0
-  STATUS_MERGED = 1
-  STATUS_ABANDONED = 2
+  STATUS_ENUM = [:pending, :merged, :abandoned]
+  STATUS_PENDING = STATUS_ENUM.find_index(:pending)
+  STATUS_MERGED = STATUS_ENUM.find_index(:merged)
+  STATUS_ABANDONED = STATUS_ENUM.find_index(:abandoned)
 
   def prepare_create
     self.status = STATUS_PENDING
@@ -47,6 +48,14 @@ class FeatureBranch < ActiveRecord::Base
         @branch_problems <<= l :feature_branch_not_found
       end
     end
+  end
+
+  def status_text
+    l "feature_branch_status.#{STATUS_ENUM[status].to_s}"
+  end
+
+  def status_text_tooltip
+    l "feature_branch_status_tooltip.#{STATUS_ENUM[status].to_s}"
   end
 end
 

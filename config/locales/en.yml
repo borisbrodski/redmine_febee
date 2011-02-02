@@ -27,7 +27,7 @@ en:
   button_initialize: Initialize
   button_reinitialize: Re-initialize
 
-# Global plugin configuration  
+# Global plug-in configuration  
   febee_full_path_to_bash: Full path to bash
   febee_full_path_to_bash_hint: Full path to the bash-shell executable.
   febee_full_path_to_git: Full path to git
@@ -46,8 +46,21 @@ en:
   section_feature_branches: Feature branches
   issue_form_feature_branch_for: Feature branch for
   issue_form_create_branch: Create branch
+  x_commits:
+    zero:  no commits
+    one:   1 commit
+    other: "{{count}} commits"
+
 
 # model/feature_branch
+  feature_branch_status:
+    pending: pending
+    merged: merged
+    abandoned: abendoned
+  feature_branch_status_tooltip:
+    pending: Feature branch is open for commits.
+    merged: Feature branch was merged into main branch. Reopen branch to push more commits.
+    abandoned: "Feature branch was abandoned and shouldn't be used any more."
   main_branch_doesnt_exists: "Main branch doesn't exists"
   closed_feature_branch_not_found: Closed feature branch not found in the git repository
   feature_branch_not_found: "Branch not found in the git repository"
