@@ -1,12 +1,23 @@
 <% if @main_branch_names %>
-<p>
 
-<label><%= l :issue_form_feature_branch_for %></label>
-<%=select_tag "main_branch_name",
-   options_for_select(@main_branch_names)
-%>
-<%# TODO Get 'submit_tag l :issue_form_create_branch, :name => 'create_feature_branch' ' to work %>
-<input name="create_feature_branch" value="<%= l :issue_form_create_branch %>" type="submit">
+  <p>
+  <label><%= l :issue_form_feature_branch_for %></label>
+  <%=select_tag "main_branch_name",
+    options_for_select(@main_branch_names)
+  %>
+  <%= submit_tag l(:issue_form_create_branch), :name => 'create_feature_branch' %>
+  </p>
 
-</p>
+  <%- @feature_branches.each do |feature_branch| -%>
+    <p>
+    <label>Feature branch</label>
+    <%= text_field_tag :text, feature_branch.name, :readonly => true %>
+
+    <%= submit_tag l(:issue_form_try_to_merge), :name => "try_to_merge_#{feature_branch.id}" if
+    feature_branch.can_try_to_merge?(@project) %>
+
+    <%= submit_tag l(:issue_form_move_to_gerrit), :name => "move_to_gerrit_#{feature_branch.id}" if
+    feature_branch.can_move_to_gerrit?(@project) %>
+    </p>
+  <%- end -%>
 <% end %>

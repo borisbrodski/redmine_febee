@@ -57,5 +57,18 @@ class FeatureBranch < ActiveRecord::Base
   def status_text_tooltip
     l "feature_branch_status_tooltip.#{STATUS_ENUM[status].to_s}"
   end
+
+  def can_move_to_gerrit?(project)
+    is_ok_and_pending? && User.current.allowed_to?(:move_to_gerrit, project)
+  end
+
+  def can_try_to_merge?(project)
+    is_ok_and_pending? && User.current.allowed_to?(:try_to_merge, project)
+  end
+
+private
+  def is_ok_and_pending?
+    STATUS_ENUM[status] == :pending && branch_problems.empty?
+  end
 end
 
