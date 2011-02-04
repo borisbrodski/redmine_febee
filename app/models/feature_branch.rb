@@ -59,16 +59,19 @@ class FeatureBranch < ActiveRecord::Base
   end
 
   def can_move_to_gerrit?(project)
-    is_ok_and_pending? && User.current.allowed_to?(:move_to_gerrit, project)
+    is_ok_and_pending_with_commits? && User.current.allowed_to?(:move_to_gerrit, project)
   end
 
   def can_try_to_merge?(project)
-    is_ok_and_pending? && User.current.allowed_to?(:try_to_merge, project)
+    is_ok_and_pending_with_commits? && User.current.allowed_to?(:try_to_merge, project)
   end
 
 private
-  def is_ok_and_pending?
-    STATUS_ENUM[status] == :pending && branch_problems.empty?
+  def is_ok_and_pending_with_commits?
+    STATUS_ENUM[status] == :pending &&
+      branch_problems.empty? &&
+      commits_count &&
+      commits_count > 0
   end
 end
 
