@@ -52,6 +52,7 @@ en:
     zero:  no commits
     one:   1 commit
     other: "{{count}} commits"
+  issue_based_on: based on
 
 
 # model/feature_branch
@@ -65,6 +66,6 @@ en:
     abandoned: "Feature branch was abandoned and shouldn't be used any more."
   main_branch_doesnt_exists: "Main branch doesn't exists"
   closed_feature_branch_not_found: Closed feature branch not found in the git repository
-  feature_branch_not_found: "Branch not found in the git repository"
+  feature_branch_not_found: "Feature branch not found in the git repository"
 
 

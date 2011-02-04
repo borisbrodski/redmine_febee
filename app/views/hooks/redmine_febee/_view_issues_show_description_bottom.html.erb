@@ -3,7 +3,8 @@
   <p><strong><%= l :section_feature_branches %></strong></p>
   <%- @feature_branches.each do |feature_branch| -%>
     <p><strong><%= feature_branch.name %></strong>
-    based on <strong><%= feature_branch.based_on_name %></strong>
+    <%= l :issue_based_on %>
+    <strong><%= feature_branch.based_on_name %></strong>
 
     <%# COMMITS COUNT %>
     <%- if feature_branch.commits_count -%>
@@ -23,6 +24,7 @@
     <%# AUTHORING %>
     <br>&nbsp;&nbsp;
     <%= authoring(feature_branch.created_on, feature_branch.created_user) if feature_branch.created_on %>
+
     <%# PROBLEMS %>
     <%- unless feature_branch.branch_problems.empty? -%>
       <br>&nbsp;&nbsp;

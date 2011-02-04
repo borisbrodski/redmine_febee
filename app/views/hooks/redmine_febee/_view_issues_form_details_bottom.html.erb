@@ -13,11 +13,37 @@
     <label>Feature branch</label>
     <%= text_field_tag :text, feature_branch.name, :readonly => true %>
 
+    <%# BASED-ON %>
+    <%= l :issue_based_on %>
+    <strong><%= feature_branch.based_on_name %></strong>
+
+
+    <%# COMMITS COUNT %>
+    <%- if feature_branch.commits_count -%>
+      (<%= l(:x_commits, :count => feature_branch.commits_count) %>)
+    <%- end %>
+
+    <%# TRY TO MERGE BUTTON %>
     <%= submit_tag l(:issue_form_try_to_merge), :name => "try_to_merge_#{feature_branch.id}" if
     feature_branch.can_try_to_merge?(@project) %>
 
+    <%# MOVE TO GERRIT BUTTON %>
     <%= submit_tag l(:issue_form_move_to_gerrit), :name => "move_to_gerrit_#{feature_branch.id}" if
     feature_branch.can_move_to_gerrit?(@project) %>
+    
+    <%# STATUS %>
+    &nbsp;&nbsp;[<strong title="<%= feature_branch.status_text_tooltip %>">
+      <%= feature_branch.status_text %></strong>
+    ]
+
+    <%# PROBLEMS %>
+    <%- unless feature_branch.branch_problems.empty? -%>
+      <br>
+      <%- feature_branch.branch_problems.each do |problem| -%>
+        <strong>Problem:</strong> <%= problem %>
+      <%- end -%>
+    <%- end -%>
     </p>
+ 
   <%- end -%>
 <% end %>
