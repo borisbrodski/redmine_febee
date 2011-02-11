@@ -11,6 +11,7 @@ class FeatureBranch < ActiveRecord::Base
 
   # Status
   STATUS_ENUM = [:pending, :merged, :abandoned]
+
   STATUS_PENDING = STATUS_ENUM.find_index(:pending)
   STATUS_MERGED = STATUS_ENUM.find_index(:merged)
   STATUS_ABANDONED = STATUS_ENUM.find_index(:abandoned)
@@ -51,11 +52,11 @@ class FeatureBranch < ActiveRecord::Base
   end
 
   def status_text
-    l "feature_branch_status.#{STATUS_ENUM[status].to_s}"
+    l "feature_branch_status.#{STATUS_ENUM[status]}"
   end
 
   def status_text_tooltip
-    l "feature_branch_status_tooltip.#{STATUS_ENUM[status].to_s}"
+    l "feature_branch_status_tooltip.#{STATUS_ENUM[status]}"
   end
 
   def can_move_to_gerrit?(project)

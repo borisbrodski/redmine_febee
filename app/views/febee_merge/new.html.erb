@@ -1,0 +1,46 @@
+<h2><%= ll "title_#{params[:merge_method]}", :count => @feature_branch.commits_count, :based_on => @feature_branch.based_on_name %></h2>
+
+<div class="box">
+  <%- labelled_tabular_form_for :febee_merge, @febee_merge,
+    :url => {:controller => 'febee_merge', :action => 'create', :issue_id => @issue.id},
+    :html => {:id => 'issue-form', :class => 'tabular new-issue-form'} do |f| -%>
+
+    <p>
+      <label>Feature branch</label><%= @feature_branch.name %>
+    </p>
+    <p>
+      <label>Target main branch</label><%= @feature_branch.based_on_name %>
+    </p>
+    <p><%= f.text_area :commit_msg, :cols => 60, :label => ll(:field_commit_msg),
+      :rows => (@febee_merge.commit_msg.blank? ? 10 : [[10, @febee_merge.commit_msg.length / 50].max, 100].min),
+      :accesskey => accesskey(:edit),
+      :class => 'wiki-edit' %>
+      <em><%=ll :hint_commit_msg %></em>
+    </p>
+
+    <%= submit_tag :Merge %>
+  <%- end -%>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<h2>Move <%= @feature_branch.commits_count %> commits to Gerrit</h2>
+
+<br/>
+<table>
+	<tr>
+		<th>Feature branch:</th><td><%= @feature_branch.name %></td>
+	</tr>
+  <tr>
+    <th>Base on branch:</th><td><%= @feature_branch.based_on_name %></td>
+  </tr>
+</table>
+
+<br/>

@@ -43,6 +43,20 @@ module RedmineFebee
           end
           redirect_to :action => :show
         end
+        if params.keys.find { |k| k =~ /^try_to_merge_([0-9]+)$/ }
+          puts "'try to merge' feature branch with id #{$1}"
+          redirect_to :controller => :febee_merge, :action => :new,
+            :issue_id => params[:id],
+            :feature_branch_id => $1.to_i,
+            :merge_method => 'try_to_merge'
+        end
+        if params.keys.find { |k| k =~ /^move_to_gerrit_([0-9]+)$/ }
+          puts "'move to gerrit' feature branch with id #{$1}"
+          redirect_to :controller => :febee_merge, :action => :new,
+            :issue_id => params[:id],
+            :feature_branch_id => $1.to_i,
+            :merge_method => 'move_to_gerrit'
+        end
       end
     end
 
