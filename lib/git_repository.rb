@@ -107,6 +107,12 @@ class GitRepository
     run_with_git "fetch --prune #{REMOTE_NAME} +refs/heads/*:refs/remotes/#{REMOTE_NAME}/*", "Fetching from the git repository"
   end
 
+  def commits(commit_ids)
+    commit_ids.map do |commit_id|
+      @grit_repository.commit(commit_id)
+    end
+  end
+
 private
 
   def unique_feature_branch_name(issue_name, main_branch_name)

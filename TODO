@@ -8,3 +8,4 @@
 - When picking a unique branch name, check it against existing entries in the feature_branches table (the test scenario: a feature branch was created and then deleted in the git repository, but not in the feature_branches table. When new feature branch created, the same unique name will be chosen and a new entry with the same name in the feature_branches table will be created)
 - Rename feature_branches table to febee_feature_branches
 - Show update_interval in the project settings page 
+- Ensure, that redmine is operatable without git repository online

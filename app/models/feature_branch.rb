@@ -6,7 +6,7 @@ class FeatureBranch < ActiveRecord::Base
   belongs_to :last_to_gerrit_user, :class_name => 'User', :foreign_key => 'last_to_gerrit_user_id'
   belongs_to :created_user,        :class_name => 'User', :foreign_key => 'created_user_id'
 
-  attr_reader :commits_count
+  attr_reader :commit_ids
   attr_reader :branch_problems
 
   # Status
@@ -15,6 +15,10 @@ class FeatureBranch < ActiveRecord::Base
   STATUS_PENDING = STATUS_ENUM.find_index(:pending)
   STATUS_MERGED = STATUS_ENUM.find_index(:merged)
   STATUS_ABANDONED = STATUS_ENUM.find_index(:abandoned)
+
+  def commits_count
+    commit_ids.try :count
+  end
 
   def prepare_create
     self.status = STATUS_PENDING
@@ -44,7 +48,7 @@ class FeatureBranch < ActiveRecord::Base
       end
     else
       if git_repository.feature_branches.include? name
-        @commits_count = git_repository.feature_branch_commit_ids(name, based_on_name).count
+        @commit_ids = git_repository.feature_branch_commit_ids(name, based_on_name)
       else
         @branch_problems <<= l :feature_branch_not_found
       end

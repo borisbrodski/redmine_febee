@@ -77,6 +77,9 @@ en:
     user_not_allowed_to_try_to_merge: User is not allowed to merge the feature branches
     user_not_allowed_to_move_to_gerrit: User is not allowed to move the commits to gerrit
     feature_branch_not_in_status_pending: Feature branch {{name}} should be in status 'pending' in order to perform a merge
+    no_commits_to_merge: The armethod_namee no commits on the feature branch {{name}} to merge
+    submit_form_try_to_merge: Merge
+    submit_form_move_to_gerrit: To Gerrit
 
 
 

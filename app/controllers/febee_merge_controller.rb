@@ -2,16 +2,53 @@
 class FebeeMergeController < ApplicationController
   unloadable
 
-  before_filter :init
   helper FebeeMergeHelper
   include FebeeMergeHelper
+  before_filter :init
 
   def new
-    
+    commit_msgs = []
+    @febee_project_configuration.access_git do |git|
+      @feature_branch.check_against_git_repository(git)
+      @commits = git.commits(@feature_branch.commit_ids)
+      unless @febee_merge
+        @commits.each do |commit|
+          commit_msgs << "\n"
+          commit_msgs << "## Commit id: #{commit.sha}"
+          commit_msgs << "## Author: #{commit.author}"
+          commit_msgs << "## Date: #{commit.date.strftime '%d.%m.%Y&nbsp;%H:%M:%S'}"
+          (commit.message.split "\n").each do |line|
+            commit_msgs << "# #{line}"
+          end
+        end
+        @febee_merge = FebeeMerge.create(:commit_msg => commit_msgs.join("\n"))
+      end
+    end
+
+    unless @feature_branch.status == FeatureBranch::STATUS_PENDING
+      error :feature_branch_not_in_status_pending, :name =>@feature_branch.name
+      return
+    end
+
+    if @feature_branch.commits_count < 1
+      error :no_commits_to_merge, :name =>@feature_branch.name
+      return
+    end
   end
 
   def create
-    redirect_to_issue
+    @febee_merge = FebeeMerge.create(params[:febee_merge])
+    puts "----------------------------------------"
+    puts "MSG: '#{@febee_merge.commit_msg_without_comments}'"
+    puts "----------------------------------------"
+    if @febee_merge.valid?
+      redirect_to_issue
+    else
+      flash[:error] = "Error occured"
+      #redirect_to :action => :new
+      new
+      render :action => :new
+    end
   end
 
 private
@@ -25,19 +62,7 @@ private
       error "user_not_allowed_to_#{params[:merge_method]}"
       return
     end
-
     @febee_project_configuration = @issue.project.febee_project_configuration
-    @febee_project_configuration.access_git do |git|
-      @feature_branch.check_against_git_repository(git)
-    end
-
-    @febee_merge = FebeeMerge.create(:commit_msg => "Hello World")
-
-    unless @feature_branch.status == FeatureBranch::STATUS_PENDING
-      error :feature_branch_not_in_status_pending, :name =>@feature_branch.name
-      return
-    end
-
   end
 
 private
