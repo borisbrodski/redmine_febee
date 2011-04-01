@@ -7,7 +7,7 @@ class FebeeMergeController < ApplicationController
   before_filter :init
 
   def new
-    commit_msgs = []
+    commit_msgs = [@feature_branch.commit_msg, '']
     @febee_project_configuration.access_git do |git|
       @feature_branch.check_against_git_repository(git)
       @commits = git.commits(@feature_branch.commit_ids)
@@ -38,10 +38,8 @@ class FebeeMergeController < ApplicationController
 
   def create
     @febee_merge = FebeeMerge.create(params[:febee_merge])
-    puts "----------------------------------------"
-    puts "MSG: '#{@febee_merge.commit_msg_without_comments}'"
-    puts "----------------------------------------"
-    if @febee_merge.valid?
+    @feature_branch.commit_msg = @febee_merge.commit_msg_without_comments
+    if @feature_branch.save
       redirect_to_issue
     else
       flash[:error] = "Error occured"

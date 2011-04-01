@@ -1,4 +1,7 @@
-<h2><%= ll "title_#{params[:merge_method]}", :count => @feature_branch.commits_count, :based_on => @feature_branch.based_on_name %></h2>
+<h2><%= ll "title_#{params[:merge_method]}",
+  :count => @feature_branch.commits_count,
+  :feature_branch_name => @feature_branch.name,
+  :based_on => @feature_branch.based_on_name %></h2>
 
 
 <table class="list">

@@ -113,6 +113,13 @@ class GitRepository
     end
   end
 
+  def merge_and_push(feature_branch_name, push_ref)
+    feature_branch_folder_path = @project_configuration.feature_branch_folder_path
+    fetch_from_server
+    feature_tmp_branch = "tmp_#{rand(100000000)}"
+    full_feature_branch_name = "'#{feature_branch_folder_path}/#{feature_branch_name}'"
+  end
+
 private
 
   def unique_feature_branch_name(issue_name, main_branch_name)

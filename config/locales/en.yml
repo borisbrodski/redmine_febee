@@ -70,8 +70,8 @@ en:
 
 # view/febee_merge
   febee_merge:
-    title_try_to_merge: Merging {{count}} commits to the branch '{{based_on}}'
-    title_move_to_gerrit: Moving to Gerrit {{count}} commits for the branch '{{based_on}}'
+    title_try_to_merge: Merging {{count}} commits from the '{{feature_branch_name}}' to the '{{based_on}}'
+    title_move_to_gerrit: Moving to Gerrit {{count}} commits from the '{{feature_branch_name}}' for the '{{based_on}}'
     field_commit_msg: Commit message
     hint_commit_msg: "The message for the squashed commit. # is a line comment."
     user_not_allowed_to_try_to_merge: User is not allowed to merge the feature branches
