@@ -24,8 +24,8 @@ en:
   hint_git_user_name: User name to use for git user.name config variable
   field_git_email_name: Git e-mail address
   hint_git_email: E-mail address to use for git user.email config variable
-  button_initialize: Initialize
-  button_reinitialize: Re-initialize
+  button_initialize: Save & Initialize
+  button_reinitialize: Save & Reinitialize
 
 # Global plug-in configuration  
   febee_full_path_to_bash: Full path to bash

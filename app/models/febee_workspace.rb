@@ -17,4 +17,9 @@ class FebeeWorkspace < ActiveRecord::Base
     end
     @git_repository
   end
+
+  def path=(new_path)
+    @git_repository = nil
+    write_attribute(:path, new_path)
+  end
 end

@@ -7,6 +7,11 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   validates_presence_of :workspace_path, :git_url, :git_user_name, :git_email_name
   validates_format_of :git_url, :with => /ssh:\/\/[^\/]+\/.*/,
                       :message => "Git url should have the format 'ssh://[username@]host[:port]/[path]"
+  after_save :save_workspace
+  
+  def save_workspace
+    febee_workspace.save
+  end
   
   def validate
     unless workspace_path.blank? || (File.directory? workspace_path) then
