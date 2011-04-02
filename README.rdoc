@@ -1,17 +1,22 @@
 = Feature branch enabled environment (FeBEE)
 
-This is a feature branch enabled environment (FeBEE) plugin for redmine.
+This is a feature branch enabled environment (FeBEE) plug-in for Redmine.
 It allows:
-- creating issue releated feature branches from the redmine
-- tracking created branches
+- creating issue related feature branches from the Redmine
+- tracking created feature branches
 - squashing all commits on the feature branch to the one commit and
-  - move the commit as a change to the gerrit or
-  - merge the commit on the master or other release branch 
+  - move it as a change to the Gerrit or
+  - put it on the master or other main (release) branch
+- the single commits on the feature branch stays untouched
 
 Installation:
-- require gems:
+- required gems:
   - grit
   - open4
+- put the plug-in into Redmine 'vendor/plugins/' directory
+  - cd .../redmine/vendor/plugins ; git clone git@github.com:borisbrodski/redmine_febee
+  - cd .../redmine/vendor/plugins ; unzip redmine_febee-xxx.zip . ; mv redmine_febee-xxx redmine_febee
+
 
 = Testing
 
