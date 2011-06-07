@@ -39,13 +39,11 @@ class FebeeMergeController < ApplicationController
   def create
     @febee_merge = FebeeMerge.create(params[:febee_merge])
     @feature_branch.commit_msg = @febee_merge.commit_msg_without_comments
+    redirect_to_issue
     if @feature_branch.save
-      redirect_to_issue
+      flash[:notice] = ll "merged_flash_#{params[:merge_method]}", :count => 0, :name => @feature_branch.based_on_name # TODO fix number of commits
     else
       flash[:error] = "Error occured"
-      #redirect_to :action => :new
-      new
-      render :action => :new
     end
   end
 

@@ -80,6 +80,8 @@ en:
     no_commits_to_merge: The armethod_namee no commits on the feature branch {{name}} to merge
     submit_form_try_to_merge: Merge
     submit_form_move_to_gerrit: To Gerrit
+    merged_flash_move_to_gerrit: Successfully moved {{count}} commits for the branch {{name}} to the gerrit
+    merged_flash_try_to_merge: Successfully put {{count}} squashed commits to the branch {{name}}
 
 
 
