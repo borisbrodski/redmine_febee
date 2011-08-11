@@ -118,6 +118,7 @@ class GitRepository
     fetch_from_server
     feature_tmp_branch = "tmp_#{rand(100000000)}"
     full_feature_branch_name = "'#{feature_branch_folder_path}/#{feature_branch_name}'"
+    # TODO Implement Merge and push
   end
 
 private

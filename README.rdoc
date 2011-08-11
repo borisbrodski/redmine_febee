@@ -20,4 +20,7 @@ Installation:
 
 = Testing
 
-
+Check test configuration file config/test_configuration.yml (copy it from config/test_configuration.yml.example if not already)
+Run tests with
+- cd vendors/redmine_febee
+- ./run_tests.sh
