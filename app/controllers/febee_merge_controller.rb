@@ -1,19 +1,17 @@
-
 class FebeeMergeController < ApplicationController
   unloadable
 
   helper FebeeMergeHelper
   include FebeeMergeHelper
   before_filter :init
-
   def new
     @febee_project_configuration.access_git do |git|
       @feature_branch.check_against_git_repository(git)
       @commits = git.commits(@feature_branch.commit_ids)
       if (@feature_branch.review_commit_count || 0) >= @commits.count
-         flash[:error] = ll :no_new_commits_to_merge_or_move_to_gerrit, :feature_branch => @feature_branch.name 
-         redirect_to_issue
-         return
+        flash[:error] = ll :no_new_commits_to_merge_or_move_to_gerrit, :feature_branch => @feature_branch.name
+        redirect_to_issue
+      return
       end
       unless @febee_merge
         commit_msgs = [@feature_branch.commit_msg, '']
@@ -32,12 +30,12 @@ class FebeeMergeController < ApplicationController
 
     unless @feature_branch.status == FeatureBranch::STATUS_PENDING
       error :feature_branch_not_in_status_pending, :name =>@feature_branch.name
-      return
+    return
     end
 
     if @feature_branch.commits_count < 1
       error :no_commits_to_merge, :name =>@feature_branch.name
-      return
+    return
     end
   end
 
@@ -47,11 +45,17 @@ class FebeeMergeController < ApplicationController
 
     @febee_merge = FebeeMerge.create(params[:febee_merge])
     @feature_branch.commit_msg = @febee_merge.commit_msg_without_comments
+    @feature_branch.commit_msg.strip!
+    if @feature_branch.commit_msg.blank?
+      flash[:error] = ll :empty_commit_message
+      redirect_to_issue
+    return
+    end
 
     unless @feature_branch.save
       flash[:error] = ll :error_saving_commit_message
       redirect_to_issue
-      return
+    return
     end
 
     change_id = @feature_branch.change_id || generate_change_id
@@ -61,7 +65,7 @@ class FebeeMergeController < ApplicationController
         @feature_branch.check_against_git_repository(git)
         @commits = git.commits(@feature_branch.commit_ids)
         authors = @commits.collect do |commit|
-          "Co-Author: #{commit.author.name} <#{commit.author.email}>" 
+          "Co-Author: #{commit.author.name} <#{commit.author.email}>"
         end.uniq
 
         feature_branch_full_name = "#{@febee_project_configuration.feature_branch_folder_path}#{@feature_branch.name}"
@@ -93,6 +97,8 @@ class FebeeMergeController < ApplicationController
         tmp_feature_branch = "tmp_feature_#{rand(100000000)}"
 
         begin
+          git.config("user.name", "#{user.firstname} #{user.lastname}'")
+          git.config("user.email", "#{user.mail}'")
           git.fetch_from_server
           git.reset_hard
           git.branch(tmp_base_branch, base_on_branch_full_name)
@@ -100,41 +106,47 @@ class FebeeMergeController < ApplicationController
           begin
             git.merge(tmp_base_branch)
           rescue Exception => msg
-            puts msg.backtrace
-            flash[:error] = "Conflicts was found. Merge your '#{@feature_branch.name}' branch with the current '#{@feature_branch.based_on_name}' branch"
-            redirect_to_issue
-            return
+          # If merge fails, try rebase
+          # This worked for some reason ones in the while
+            begin
+              git.reset_hard
+              git.rebase(tmp_base_branch)
+            rescue
+              puts msg.backtrace
+              flash[:error] = "Conflicts was found. Merge your '#{@feature_branch.name}' branch with the current '#{@feature_branch.based_on_name}' branch"
+              redirect_to_issue
+              return
+            end
           end
           git.reset_soft(tmp_base_branch)
           git.commit_F(message_file)
           if moving_to_gerrit
             git.push("refs/for/#{base_on_branch_full_name}")
+            if @feature_branch.change_id.blank?
+            @feature_branch.change_id = change_id
+            end
           else
             git.push(base_on_branch_full_name)
-          end
-          if @feature_branch.change_id.blank?
-            @feature_branch.change_id = change_id
+            @feature_branch.close_feature_branch(git, @febee_project_configuration)
           end
           @feature_branch.review_commit_count = @commits.count
           @feature_branch.save
         ensure
-          git.reset_hard
-          git.checkout_remote_branch(base_on_branch_full_name)
-          git.branch_delete(tmp_base_branch)
-          git.branch_delete(tmp_feature_branch)
+        git.reset_hard
+        git.checkout_remote_branch(base_on_branch_full_name)
+        git.branch_delete(tmp_base_branch)
+        git.branch_delete(tmp_feature_branch)
         end
 
-        gerrit_web_url = @febee_project_configuration.gerrit_web_url
-        gerrit_web_url <<= '/' unless gerrit_web_url[-1..-1] == '/'
         flash[:notice] = ll "merged_flash_#{params[:merge_method]}", :count => @commits.size, :name => @feature_branch.based_on_name,
-          :review_link => "#{gerrit_web_url}#q,#{@feature_branch.change_id},n,z"
+          :review_link => "#{@febee_project_configuration.gerrit_web_url_with_slash}#q,#{@feature_branch.change_id},n,z"
         redirect_to_issue
       end
     rescue Exception => msg
       if msg.class == ExecHelper::ExecError
-        message = msg.message
+      message = msg.message
       else
-        message = msg.to_s
+      message = msg.to_s
       end
       puts msg.backtrace
       flash[:error] = message
@@ -142,10 +154,10 @@ class FebeeMergeController < ApplicationController
     ensure
       FileUtils.rm_rf message_file
     end
-
   end
 
 private
+
   def init
     @move_to_gerrit = (params[:merge_method] == 'move_to_gerrit')
 
@@ -158,6 +170,12 @@ private
       return
     end
     @febee_project_configuration = @issue.project.febee_project_configuration
+    
+    unless @feature_branch.status == FeatureBranch::STATUS_PENDING
+      flash[:error] = "The feature branch #{@feature_branch.name} of issue #{@issue.id} not in the 'pending' status"
+      redirect_to_issue
+      return
+    end
   end
 
   def generate_change_id
@@ -169,6 +187,7 @@ private
     flash[:error] = ll(message, options)
     redirect_to_issue
   end
+
   def redirect_to_issue
     redirect_to :controller => 'issues', :action => 'show', :id => @issue.id
   end

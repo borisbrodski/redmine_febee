@@ -89,6 +89,7 @@ en:
     merged_flash_try_to_merge: Successfully put {{count}} squashed commits to the branch {{name}}
     setting_redmine_url_blank: Redmine URL not set. Please go to the plugin administration, than to the FeBEE-settings and enter the Redmine URL.
     error_saving_commit_message: Error saving commit message to the database.
+    empty_commit_message: "Commit message can't be empty"
 
 
 

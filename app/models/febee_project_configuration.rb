@@ -57,4 +57,12 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   def closed_feature_branch_folder_path
     "#{closed_feature_branch_folder_name}#{'/' unless closed_feature_branch_folder_name.blank?}"
   end
+  def gerrit_web_url_with_slash
+    result = gerrit_web_url
+    if result
+      result.strip!
+      result <<= '/' unless result[-1..-1] == '/' unless result.blank?
+      result
+    end
+  end
 end

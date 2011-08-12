@@ -24,8 +24,7 @@ module RedmineFebee
             end
             @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
             FeatureBranch.check_against_git_repository(@feature_branches, git)
-            @gerrit_web_url = @project.febee_project_configuration.gerrit_web_url
-            @gerrit_web_url <<= '/' unless @gerrit_web_url[-1..-1] == '/'
+            @gerrit_web_url = @project.febee_project_configuration.gerrit_web_url_with_slash
           end
         end
       end
@@ -36,7 +35,9 @@ module RedmineFebee
           with_git do |git|
             main_branch_name = params[:main_branch_name]
             if @main_branch_names.include? main_branch_name
-              new_branch_name = git.create_feature_branch main_branch_name, params[:id]
+              new_branch_name = git.create_feature_branch main_branch_name, params[:id] do |name|
+                FeatureBranch.find_by_name(name)
+              end
               create_feature_branch new_branch_name, main_branch_name, 'xxx TODO'
               flash[:notice] = "Feature branch created: #{new_branch_name}"
             else

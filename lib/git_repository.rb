@@ -92,9 +92,9 @@ class GitRepository
     @remote_branches
   end
 
-  def create_feature_branch main_branch_name, issue_id
+  def create_feature_branch main_branch_name, issue_id, &block
     return nil unless main_branches.include? main_branch_name
-    name = unique_feature_branch_name "issue_#{issue_id}", main_branch_name
+    name = unique_feature_branch_name("issue_#{issue_id}", main_branch_name, &block)
 
     main_branch_folder_path = @project_configuration.main_branch_folder_path
     feature_branch_folder_path = @project_configuration.feature_branch_folder_path
@@ -114,6 +114,9 @@ class GitRepository
       @grit_repository.commit(commit_id)
     end
   end
+  def config(param, value)
+    run_with_git "config \"#{param}\" \"#{value}\"", "Reseting (hard)"
+  end
   def reset_hard
     run_with_git "reset --hard", "Reseting (hard)"
   end
@@ -132,14 +135,24 @@ class GitRepository
   def merge(branch)
     run_with_git "merge #{branch}", "Merging HEAD with #{branch}"
   end
+  def rebase(branch)
+    run_with_git "rebase #{branch}", "Rebase HEAD with #{branch}"
+  end
   def commit_F(filename)
     run_with_git "commit -F #{filename}", "Commiting with commit message from file #{filename}"
   end
   def push(ref)
-    output, error, cmds = run_with_git "push #{REMOTE_NAME} HEAD:#{ref}", "Pushing HEAD to #{ref}"
-    unless error.blank? || error.include?("[new branch]")
-      raise ExecHelper::ExecError.new(cmds, "Error pushing to #{REMOTE_NAME}", 0, output, error)
-    end
+    run_with_git "push #{REMOTE_NAME} HEAD:#{ref}", "Pushing HEAD to #{ref}"
+#    output, error, cmds = run_with_git "push #{REMOTE_NAME} HEAD:#{ref}", "Pushing HEAD to #{ref}"
+#    unless error.blank? || error.include?("[new branch]")
+#      raise ExecHelper::ExecError.new(cmds, "Error pushing to #{REMOTE_NAME}", 0, output, error)
+#    end
+  end
+  def push_copy_branch(from_ref, to_ref)
+    run_with_git "push #{REMOTE_NAME} remotes/#{REMOTE_NAME}/#{from_ref}:refs/heads/#{to_ref}", "Copying remote branch #{from_ref} to #{to_ref}"
+  end
+  def push_delete_branch(ref)
+    run_with_git "push #{REMOTE_NAME} :refs/heads/#{ref}", "Deleting remote branch #{ref}"
   end
   def branch_delete(branch_name)
     run_with_git "branch -D #{branch_name}", "Deleting branch #{branch_name}"
@@ -155,7 +168,7 @@ private
       name << "_#{main_branch_name}" unless main_branch_name == "master"
       name << "_#{counter}" unless counter == 0
       counter += 1
-    end while feature_branches.include? name
+    end while feature_branches.include?(name) || yield(name)
     name
   end
 

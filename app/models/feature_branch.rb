@@ -27,7 +27,7 @@ class FeatureBranch < ActiveRecord::Base
 
   def checkout_cmd
     pc = issue.project.febee_project_configuration
-    "git checkout '#{pc.feature_branch_folder_path}#{name}'"
+    "git fetch; git checkout '#{pc.feature_branch_folder_path}#{name}'"
   end
 
   def self.check_against_git_repository(feature_branches, git_repository)
@@ -64,11 +64,21 @@ class FeatureBranch < ActiveRecord::Base
   end
 
   def can_move_to_gerrit?(project)
-    is_ok_and_pending_with_commits? && User.current.allowed_to?(:move_to_gerrit, project)
+    project.febee_project_configuration.is_gerrit &&
+      is_ok_and_pending_with_commits? &&
+      User.current.allowed_to?(:move_to_gerrit, project)
   end
 
   def can_try_to_merge?(project)
     is_ok_and_pending_with_commits? && User.current.allowed_to?(:try_to_merge, project)
+  end
+
+  def close_feature_branch(git, febee_project_configuration, abandon = false)
+    self.status = abandon ?  STATUS_ABANDONED : STATUS_MERGED
+    feature_branch_full_name = "#{febee_project_configuration.feature_branch_folder_path}#{name}"
+    closed_feature_branch_full_name = "#{febee_project_configuration.closed_feature_branch_folder_path}#{name}"
+    git.push_copy_branch(feature_branch_full_name, closed_feature_branch_full_name)
+    git.push_delete_branch(feature_branch_full_name)
   end
 
 private

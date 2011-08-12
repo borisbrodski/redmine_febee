@@ -11,3 +11,5 @@
 - Ensure, that redmine is operatable without git repository online
 - Wenn fetching or pushing use timeout. This should prevent hanging of the server in case ssk waiting for password from the  console.
 - Delete FeBEE records, if project get deleted
+
+- Moving to Gerrit and then merging works bad. Review link stays; wrong number of commits shows (number of merged commits, not commits moved to gerrit)
