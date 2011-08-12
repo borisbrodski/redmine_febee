@@ -9,6 +9,10 @@ class FebeeProjectConfiguration < ActiveRecord::Base
                       :message => "Git url should have the format 'ssh://[username@]host[:port]/[path]"
   after_save :save_workspace
   
+  def initialize *args
+    super *args
+    self.febee_workspace = FebeeWorkspace.new(:febee_project_configuration => self)
+  end
   def save_workspace
     febee_workspace.save
   end
@@ -32,7 +36,6 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   end
 
   def workspace_path=(path)
-    self.febee_workspace ||= FebeeWorkspace.new
     febee_workspace.path = path
   end
 

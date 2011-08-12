@@ -10,3 +10,4 @@
 - Show update_interval in the project settings page 
 - Ensure, that redmine is operatable without git repository online
 - Wenn fetching or pushing use timeout. This should prevent hanging of the server in case ssk waiting for password from the  console.
+- Delete FeBEE records, if project get deleted

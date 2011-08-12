@@ -17,7 +17,7 @@ class FebeeProjectConfigurationsController < ApplicationController
 
     @febee_project_configuration.attributes = params[:febee_project_configuration]
     @initialized = @febee_project_configuration.workspace_initialized?
-    @febee_project_configuration.save
+    @febee_project_configuration.save(false) # Ignore validation errors hier. User must be able to come back to this page and correct errors.
   end
 
   def initialize_git_repository
