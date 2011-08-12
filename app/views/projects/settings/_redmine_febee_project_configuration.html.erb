@@ -17,6 +17,9 @@
 <p><%= f.check_box :is_gerrit %><br />
   <em><%=l :hint_is_gerrit %></em></p>
 </p>
+<p><%= f.text_field :gerrit_web_url %><br />
+  <em><%=l :hint_gerrit_web_url %></em></p>
+</p>
 <p><%= f.text_field :workspace_path, :size => size, :required => true %>
   <% if @initialized %>
     <%= submit_to_remote :reinitialize, l(:button_reinitialize),

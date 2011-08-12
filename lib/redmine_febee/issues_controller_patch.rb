@@ -24,6 +24,8 @@ module RedmineFebee
             end
             @feature_branches = FeatureBranch.find_all_by_issue_id(params[:id])
             FeatureBranch.check_against_git_repository(@feature_branches, git)
+            @gerrit_web_url = @project.febee_project_configuration.gerrit_web_url
+            @gerrit_web_url <<= '/' unless @gerrit_web_url[-1..-1] == '/'
           end
         end
       end

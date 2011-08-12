@@ -36,6 +36,13 @@
       <%= feature_branch.status_text %></strong>
     ]
 
+    <%# REVIEWS %>
+    <%- unless feature_branch.change_id.blank? -%>
+      (<a href="<%= @gerrit_web_url %>#q,<%= feature_branch.change_id %>,n,z">Review</a>
+      with <%= l(:x_commits, :count => (feature_branch.review_commit_count || 0)) %>)
+    <%- end -%>
+
+
     <%# PROBLEMS %>
     <%- unless feature_branch.branch_problems.empty? -%>
       <br>

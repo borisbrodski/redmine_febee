@@ -10,6 +10,11 @@ class FebeeMergeController < ApplicationController
     @febee_project_configuration.access_git do |git|
       @feature_branch.check_against_git_repository(git)
       @commits = git.commits(@feature_branch.commit_ids)
+      if (@feature_branch.review_commit_count || 0) >= @commits.count
+         flash[:error] = ll :no_new_commits_to_merge_or_move_to_gerrit, :feature_branch => @feature_branch.name 
+         redirect_to_issue
+         return
+      end
       unless @febee_merge
         commit_msgs = [@feature_branch.commit_msg, '']
         @commits.each do |commit|
@@ -37,15 +42,19 @@ class FebeeMergeController < ApplicationController
   end
 
   def create
+    user = User.current
+    moving_to_gerrit = params[:merge_method] == 'move_to_gerrit'
+
     @febee_merge = FebeeMerge.create(params[:febee_merge])
     @feature_branch.commit_msg = @febee_merge.commit_msg_without_comments
+
     unless @feature_branch.save
       flash[:error] = ll :error_saving_commit_message
       redirect_to_issue
+      return
     end
 
-    moving_to_gerrit = params[:merge_method] == 'move_to_gerrit'
-
+    change_id = @feature_branch.change_id || generate_change_id
     message_file = "#{RAILS_ROOT}/tmp/message_file_#{rand(100000000)}"
     begin
       @febee_project_configuration.access_git do |git|
@@ -57,7 +66,6 @@ class FebeeMergeController < ApplicationController
 
         feature_branch_full_name = "#{@febee_project_configuration.feature_branch_folder_path}#{@feature_branch.name}"
         base_on_branch_full_name = "#{@febee_project_configuration.main_branch_folder_path}#{@feature_branch.based_on_name}"
-        user = User.current
 
         File.open(message_file, 'w') do |f|
           f.write(@feature_branch.commit_msg)
@@ -73,7 +81,7 @@ class FebeeMergeController < ApplicationController
           f.write("Feature branch: #{feature_branch_full_name}\n")
           f.write("For branch: #{base_on_branch_full_name}\n\n")
           f.write("#{authors.join('\n')}\n") unless authors.size < 2
-          f.write("Change-Id: #{generate_change_id}\n")
+          f.write("Change-Id: #{change_id}\n")
           if moving_to_gerrit
             f.write("Moved to gerrit by: #{user.name}\n")
           else
@@ -89,12 +97,12 @@ class FebeeMergeController < ApplicationController
           git.reset_hard
           git.branch(tmp_base_branch, base_on_branch_full_name)
           git.checkout_b(tmp_feature_branch, feature_branch_full_name)
-          debugger
           begin
             git.merge(tmp_base_branch)
           rescue Exception => msg
             puts msg.backtrace
             flash[:error] = "Conflicts was found. Merge your '#{@feature_branch.name}' branch with the current '#{@feature_branch.based_on_name}' branch"
+            redirect_to_issue
             return
           end
           git.reset_soft(tmp_base_branch)
@@ -104,13 +112,22 @@ class FebeeMergeController < ApplicationController
           else
             git.push(base_on_branch_full_name)
           end
+          if @feature_branch.change_id.blank?
+            @feature_branch.change_id = change_id
+          end
+          @feature_branch.review_commit_count = @commits.count
+          @feature_branch.save
         ensure
+          git.reset_hard
           git.checkout_remote_branch(base_on_branch_full_name)
           git.branch_delete(tmp_base_branch)
           git.branch_delete(tmp_feature_branch)
         end
 
-        flash[:notice] = ll "merged_flash_#{params[:merge_method]}", :count => @commits.size, :name => @feature_branch.based_on_name
+        gerrit_web_url = @febee_project_configuration.gerrit_web_url
+        gerrit_web_url <<= '/' unless gerrit_web_url[-1..-1] == '/'
+        flash[:notice] = ll "merged_flash_#{params[:merge_method]}", :count => @commits.size, :name => @feature_branch.based_on_name,
+          :review_link => "#{gerrit_web_url}#q,#{@feature_branch.change_id},n,z"
         redirect_to_issue
       end
     rescue Exception => msg
@@ -135,7 +152,8 @@ private
     @feature_branch = FeatureBranch.find(params[:feature_branch_id])
     @issue = @feature_branch.issue
 
-    unless User.current.allowed_to?(params[:merge_method].to_sym, @issue.project)
+    @project = @issue.project
+    unless User.current.allowed_to?(params[:merge_method].to_sym, @project)
       error "user_not_allowed_to_#{params[:merge_method]}"
       return
     end

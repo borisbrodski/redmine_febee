@@ -5,7 +5,9 @@ en:
   project_module_febee: FeBEE
   field_git_url: Git url
   hint_git_url: Url to git or gerrit server
-  field_is_gerrit: Enable gerrit
+  field_gerrit_web_url: Gerrit URL
+  hint_gerrit_web_url: 'URL to the Gerrit web fontend. Example: http://http://fdd.company.com/redmine/'
+  field_is_gerrit: Enable Gerrit reviews
   hint_is_gerrit: Check it, if the git repository hosted by gerrit and review support should be enabled
   field_workspace_path: Workspace path
   hint_workspace_path: <b>WARNING:</b> all content of the directory will be removed!
@@ -72,6 +74,7 @@ en:
 
 # view/febee_merge
   febee_merge:
+    no_new_commits_to_merge_or_move_to_gerrit: No new commits. Commit to the feature branch '{{feature_branch}}'  first.
     title_try_to_merge: Merging {{count}} commits from the '{{feature_branch_name}}' to the '{{based_on}}'
     title_move_to_gerrit: Moving to Gerrit {{count}} commits from the '{{feature_branch_name}}' for the '{{based_on}}'
     field_commit_msg: Commit message
@@ -82,7 +85,7 @@ en:
     no_commits_to_merge: The armethod_namee no commits on the feature branch {{name}} to merge
     submit_form_try_to_merge: Merge
     submit_form_move_to_gerrit: To Gerrit
-    merged_flash_move_to_gerrit: Successfully moved {{count}} commits for the branch {{name}} to the gerrit
+    merged_flash_move_to_gerrit: 'Successfully moved {{count}} commits for the branch {{name}} to the Gerrit: <a href="{{review_link}}">Review</a>'
     merged_flash_try_to_merge: Successfully put {{count}} squashed commits to the branch {{name}}
     setting_redmine_url_blank: Redmine URL not set. Please go to the plugin administration, than to the FeBEE-settings and enter the Redmine URL.
     error_saving_commit_message: Error saving commit message to the database.

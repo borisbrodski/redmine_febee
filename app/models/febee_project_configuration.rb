@@ -19,8 +19,12 @@ class FebeeProjectConfiguration < ActiveRecord::Base
   
   def validate
     unless workspace_path.blank? || (File.directory? workspace_path) then
-      errors.add_to_base "Not a valid workspace directory: '#{workspace_path}'"
+      errors.add_to_base "Not a valid workspace directory: '#{workspace_path}'" # TODO to yml
     end
+    if is_gerrit && gerrit_web_url.blank?
+      errors.add_to_base "Gerrit web frontend URL should be specified in order to enable reviews." # TODO to yml
+    end
+
   end
 
   def access_git
