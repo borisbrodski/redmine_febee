@@ -1,7 +1,15 @@
 <% string_fields = ProjectCustomField.find :all %>
 
 <fieldset>
-<legend>Project Specific</legend>
+<legend>Environment settings</legend>
+<p><label><%= l :febee_redmine_url %></label>
+<%= text_field_tag 'settings[redmine_url]', @settings['redmine_url'], :size => 30 %><br />
+<em><%= l :febee_redmine_url_hint %></em>
+</p>
+</fieldset>
+
+<fieldset>
+<legend>Platform specific settings</legend>
 <p><label><%= l :febee_full_path_to_bash %></label>
 <%= text_field_tag 'settings[cmd_bash]', @settings['cmd_bash'], :size => 30 %><br />
 <em><%= l :febee_full_path_to_bash_hint %></em>
@@ -16,5 +24,4 @@
 <%= text_field_tag 'settings[cmd_ssh]', @settings['cmd_ssh'], :size => 30 %><br />
 <em><%= l :febee_full_path_to_ssh_hint %></em>
 </p>
-
 </fieldset>

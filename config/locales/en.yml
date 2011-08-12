@@ -28,6 +28,8 @@ en:
   button_reinitialize: Save & Reinitialize
 
 # Global plug-in configuration  
+  febee_redmine_url: Redmine URL
+  febee_redmine_url_hint: 'Example: http://fdd.company.com/redmine. Will be used within git commit messages to link the commit back to the issue.'
   febee_full_path_to_bash: Full path to bash
   febee_full_path_to_bash_hint: Full path to the bash-shell executable.
   febee_full_path_to_git: Full path to git
@@ -82,6 +84,8 @@ en:
     submit_form_move_to_gerrit: To Gerrit
     merged_flash_move_to_gerrit: Successfully moved {{count}} commits for the branch {{name}} to the gerrit
     merged_flash_try_to_merge: Successfully put {{count}} squashed commits to the branch {{name}}
+    setting_redmine_url_blank: Redmine URL not set. Please go to the plugin administration, than to the FeBEE-settings and enter the Redmine URL.
+    error_saving_commit_message: Error saving commit message to the database.
 
 
 

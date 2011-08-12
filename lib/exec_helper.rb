@@ -47,7 +47,7 @@ module ExecHelper
       logger.warn e
       raise ExecError.new(cmds, description), l(:exec_error_cant_start_program) + ": #{e}"
     end
-    raise ExecError.new(cmds, description), l(:exec_error_cant_start_program)  if status == nil
+    raise ExecError.new(cmds, description), l(:exec_error_cant_start_program) if status == nil
     exit_code = status.exitstatus
     if exit_code == 0
       logger.info "Success\nStdOut: '#{output}'\nStdErr: '#{error}'"
@@ -55,6 +55,7 @@ module ExecHelper
     else
       raise ExecError.new(cmds, description, exit_code, output, error), l(:exec_error_cant_start_program)
     end
+    return output, error, cmds
   end
 
   def single_qoute cmd

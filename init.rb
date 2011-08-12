@@ -32,7 +32,8 @@ Redmine::Plugin.register :redmine_febee do
   settings :default => {
     'cmd_git' => 'git',
     'cmd_ssh' => 'ssh',
-    'cmd_bash' => '/bin/bash'
+    'cmd_bash' => '/bin/bash',
+    'redmine_url' => '',
   }, :partial => 'settings/redmine_febee_configuration'
 
 end

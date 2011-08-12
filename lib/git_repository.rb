@@ -34,12 +34,14 @@ class GitRepository
     empty_non_root_directory(@workspace.path)
     url = @project_configuration.git_url
     run_with_git "clone #{single_qoute(url)} .", "Cloning project repository from #{url}"
+    run_with_git "config user.name \"#{@project_configuration.git_user_name}\"", "Setting user.name"
+    run_with_git "config user.email \"#{@project_configuration.git_email_name}\"", "Setting email.name"
   end
 
   def feature_branch_commit_ids(feature_branch, main_branch)
     main = "#{@project_configuration.main_branch_folder_path}#{main_branch}"
     feature = "#{@project_configuration.feature_branch_folder_path}#{feature_branch}"
-    log = run_with_git "log --format=format:%H '#{REMOTE_NAME}/#{main}..#{REMOTE_NAME}/#{feature}'",
+    log, error, cmds = run_with_git "log --format=format:%H '#{REMOTE_NAME}/#{main}..#{REMOTE_NAME}/#{feature}'",
       "Retrieve commits ids on the feature branch"
     log.split("\n")
   end
@@ -83,7 +85,7 @@ class GitRepository
   def remote_branches
     return @remote_branches if @remote_branches
 
-    output = run_with_git("branch -r", "Retrieving remote branches")
+    output, error, cmds = run_with_git("branch -r", "Retrieving remote branches")
     @remote_branches = (output.split "\n").select{|line| line.gsub! /\s+#{REMOTE_NAME}\//, ''; line !~ /->/ }
     @main_branches = nil
     @feature_branches = nil
@@ -112,14 +114,37 @@ class GitRepository
       @grit_repository.commit(commit_id)
     end
   end
-
-  def merge_and_push(feature_branch_name, push_ref)
-    feature_branch_folder_path = @project_configuration.feature_branch_folder_path
-    fetch_from_server
-    feature_tmp_branch = "tmp_#{rand(100000000)}"
-    full_feature_branch_name = "'#{feature_branch_folder_path}/#{feature_branch_name}'"
-    # TODO Implement Merge and push
+  def reset_hard
+    run_with_git "reset --hard", "Reseting (hard)"
   end
+  def reset_soft(branch_name)
+    run_with_git "reset --soft #{branch_name}", "Reseting (soft)"
+  end
+  def checkout_b local_branch, remote_branch
+    run_with_git "checkout -b #{local_branch} remotes/#{REMOTE_NAME}/#{remote_branch}", "Checking out remote branch #{remote_branch} into a new local branch #{local_branch}"
+  end
+  def checkout_remote_branch remote_branch
+    run_with_git "checkout remotes/#{REMOTE_NAME}/#{remote_branch}", "Checking out remote branch #{remote_branch}"
+  end
+  def branch local_branch, remote_branch
+    run_with_git "branch #{local_branch} remotes/#{REMOTE_NAME}/#{remote_branch}", "Creating new local branch #{local_branch} based on remote branch #{remote_branch}"
+  end
+  def merge(branch)
+    run_with_git "merge #{branch}", "Merging HEAD with #{branch}"
+  end
+  def commit_F(filename)
+    run_with_git "commit -F #{filename}", "Commiting with commit message from file #{filename}"
+  end
+  def push(ref)
+    output, error, cmds = run_with_git "push #{REMOTE_NAME} HEAD:#{ref}", "Pushing HEAD to #{ref}"
+    unless error.blank? || error.include?("[new branch]")
+      raise ExecHelper::ExecError.new(cmds, "Error pushing to #{REMOTE_NAME}", 0, output, error)
+    end
+  end
+  def branch_delete(branch_name)
+    run_with_git "branch -D #{branch_name}", "Deleting branch #{branch_name}"
+  end
+
 
 private
 
