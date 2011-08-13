@@ -27,7 +27,7 @@
       with <%= l(:x_commits, :count => (feature_branch.review_commit_count || 0)) %>)
     <%- else -%>
       <%- if feature_branch.review_commit_count -%>
-        (<%= l(:x_commits, :count => (feature_branch.review_commit_count)) %> commits merged)
+        (<%= l(:x_commits, :count => (feature_branch.review_commit_count)) %> merged)
 	  <%- end -%>
     <%- end -%>
 

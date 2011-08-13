@@ -40,6 +40,10 @@
     <%- unless feature_branch.change_id.blank? -%>
       (<a href="<%= @gerrit_web_url %>#q,<%= feature_branch.change_id %>,n,z">Review</a>
       with <%= l(:x_commits, :count => (feature_branch.review_commit_count || 0)) %>)
+    <%- else -%>
+      <%- if feature_branch.review_commit_count -%>
+        (<%= l(:x_commits, :count => (feature_branch.review_commit_count)) %> merged)
+	  <%- end -%>
     <%- end -%>
 
 
