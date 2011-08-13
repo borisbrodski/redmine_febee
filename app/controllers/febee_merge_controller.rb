@@ -84,9 +84,9 @@ class FebeeMergeController < ApplicationController
           f.write("Issue ##{@issue.id}: #{redmine_url}issues/#{params[:issue_id]}\n")
           f.write("Feature branch: #{feature_branch_full_name}\n")
           f.write("For branch: #{base_on_branch_full_name}\n\n")
-          f.write("#{authors.join('\n')}\n") unless authors.size < 2
-          f.write("Change-Id: #{change_id}\n")
+          f.write("#{authors.join('\n')}\n")
           if moving_to_gerrit
+            f.write("Change-Id: #{change_id}\n")
             f.write("Moved to gerrit by: #{user.name}\n")
           else
             f.write("Merged by: #{user.name}\n")
