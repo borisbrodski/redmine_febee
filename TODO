@@ -10,3 +10,6 @@
 
 - Show update_interval in the project settings page 
 - Moving to Gerrit and then merging works bad. Review link stays; wrong number of commits shows (number of merged commits, not commits moved to gerrit)
+
+- Record screencast:
+  - Install Gerrit + Redmine + eclipse + redmine_febee on the fresh Ubuntu installation
