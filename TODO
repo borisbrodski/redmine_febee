@@ -7,9 +7,14 @@
 - Ensure, that redmine is operatable without git repository online
 - Wenn fetching or pushing use timeout. This should prevent hanging of the server in case ssh waiting for password from the console.
 - Delete FeBEE records, if project get deleted
+- Show error message, if <redmine>/tmp directory read-only
+  Currently, if this is the case, the last missing field in the project
+  configuration doesn't get saved without any error message. This occurs
+  because of following: when last required field filled with data and
+  validation of the project_configuration model passes, FeBEE tries to
+  create the tmp file with the private key. The exception doesn't get
+  catched, so entire HTTP request fails. The only possibility to find the
+  error is to look into the log file (or console).
 
 - Show update_interval in the project settings page 
 - Moving to Gerrit and then merging works bad. Review link stays; wrong number of commits shows (number of merged commits, not commits moved to gerrit)
-
-- Record screencast:
-  - Install Gerrit + Redmine + eclipse + redmine_febee on the fresh Ubuntu installation

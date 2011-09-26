@@ -10,13 +10,48 @@ It allows:
 - the single commits on the feature branch stays untouched
 
 Installation:
-- required gems:
-  - grit
-  - open4
+- Install required gems (on some systems with "sudo"):
+  - gem install open4
+  - gem install grit
 - put the plug-in into Redmine 'vendor/plugins/' directory
-  - cd .../redmine/vendor/plugins ; git clone git@github.com:borisbrodski/redmine_febee
-  - cd .../redmine/vendor/plugins ; unzip redmine_febee-xxx.zip . ; mv redmine_febee-xxx redmine_febee
+  - cd .../redmine/vendor/plugins ; git clone git://github.com/borisbrodski/redmine_febee.git
+  - cd .../redmine/vendor/plugins ; unzip redmine_febee-xxx.zip . ; mv borisbrodski-redmine_febee-xxx redmine_febee
+- Run migration scripts
+  - rake db:migrate_plugins RAILS_ENV=production
 
+Configuration:
+- Check global FeBEE configuration
+  - Open <redmine-url>/settings/plugin/redmine_febee
+  - Enter redmine url
+  - Check commands and paths
+- Create workspace directory somewhere
+  - cd <redmine-artifacts-path>
+  - mkdir febee-workspace
+  - chmod a+w febee-workspace (should be avoided in production environments)
+  - Go to redmine
+- Enable FeBEE for a project
+  - Go to redmine, select the project
+  - Go to Settings/Modules and enable FeBEE
+  - Go to Settings/FeBEE and enter
+    - Git url
+    - Path to the created workspace (<redmine-artifacts-path>/febee-workspace)
+    - Other fields as needed
+
+Configuration with Gerrit:
+- Do the configuration steps from above
+- Create FeBEE keys and febee user within gerrit
+  - cd <redmine-artifacts-path>
+  - mkdir febee-keys
+  - cd febee-keys
+  - ssh-keygen
+    - Enter file name: febee_id
+    - Enter empty password
+  - cat febee_rsa.pub | ssh -p 29418 <username>@localhost gerrit create-account --full-name FeBEE --ssh-key - febee
+    (You will have to configure private key authentification first. See Gerrit documentation in order to do this)
+  - Add new febee user to the "Administrators" group
+- Save private key in the Project Configuration
+  - Go to Settings/FeBEE
+  - Copy/paste private key <redmine-artifacts-path>/febee-keys/febee_id into "Private key" field
 
 = Testing
 
